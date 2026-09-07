@@ -44,7 +44,8 @@
 
     <!-- 右侧：音量和播放列表 -->
     <div class="player-right">
-      <el-button  size="middle" @click="playerStore.openLyric?.()" title="桌面歌词">
+      <el-button size="middle" :type="playerStore.lyricVisible ? 'danger' : 'default'"
+        @click="playerStore.toggleLyric()" :title="playerStore.lyricVisible ? '关闭桌面歌词' : '桌面歌词'">
         桌面歌词
       </el-button>
 

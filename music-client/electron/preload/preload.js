@@ -17,5 +17,7 @@ contextBridge.exposeInMainWorld('electron', {
   onPlayerPrev: (callback) => ipcRenderer.on('player:prev', callback),
   onPlayerNext: (callback) => ipcRenderer.on('player:next', callback),
 
-  onLyricUpdate: (callback) => ipcRenderer.on('lyric:update', (event, data) => callback(data))
+  onLyricUpdate: (callback) => ipcRenderer.on('lyric:update', (event, data) => callback(data)),
+
+  onLyricClosed: (callback) => ipcRenderer.on('lyric:closed', () => callback())
 })

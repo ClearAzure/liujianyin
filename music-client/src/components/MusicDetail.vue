@@ -50,7 +50,7 @@
               <p class="count">播放量：{{ playerStore.currentMusic.playCount || 0 }}</p>
             </div>
             <div class="lyric-area">
-              <Lyric :lrcText="lrcText" />
+              <Lyric :lrcText="playerStore.lrcText" />
             </div>
           </div>
         </div>
@@ -60,16 +60,13 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { usePlayerStore } from '../stores/playerStore.js'
 import * as favoriteAPI from '../api/favorite.js'
 import Lyric from '../components/Lyric.vue'
-import axios from 'axios'
 
 const playerStore = usePlayerStore()
-const lrcText = ref('')
 const isFav = ref(false)
-const lrcCache = new Map()
 
 const defaultCover = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect fill="#1a1a2e" width="300" height="300"/><text fill="#444" x="120" y="170" font-size="50">♪</text></svg>')
 
@@ -83,30 +80,6 @@ const modeLabel = computed(() => {
 function closePanel() {
   playerStore.showDetailPanel = false
 }
-
-// 打开面板时异步加载歌词（非阻塞）
-watch(() => playerStore.showDetailPanel, async (show) => {
-  if (!show) return
-  const music = playerStore.currentMusic
-  if (!music) return
-
-  const url = music.lyricUrl
-  if (!url) { lrcText.value = ''; return }
-
-  // 歌词缓存
-  if (lrcCache.has(url)) {
-    lrcText.value = lrcCache.get(url)
-    return
-  }
-
-  try {
-    const { data } = await axios.get(url, { timeout: 5000 })
-    lrcCache.set(url, data)
-    lrcText.value = data
-  } catch {
-    lrcText.value = ''
-  }
-})
 
 async function toggleFav() {
   const music = playerStore.currentMusic

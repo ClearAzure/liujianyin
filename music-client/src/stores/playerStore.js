@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
+import axios from 'axios'
 
 // localStorage 持久化 key，刷新/重启后恢复上一次播放的音乐
 const STORAGE_KEY = 'player-state'
@@ -29,6 +30,11 @@ export const usePlayerStore = defineStore('player', () => {
   const currentIndex = ref(saved.currentIndex ?? -1)// 当前播放的音乐在播放列表中的索引，-1 表示没有音乐在播放
 
   const showDetailPanel = ref(false)
+
+  // 桌面歌词：当前歌曲的 LRC 文本 + 缓存 + 窗口开关状态
+  const lrcText = ref('')
+  const lrcCache = new Map()
+  const lyricVisible = ref(false) // 桌面歌词窗口是否打开（用于按钮高亮）
 
   const hasCurrent = computed(() => !!currentMusic.value)// 是否有当前播放的音乐
   const hasNext = computed(() => {
@@ -158,12 +164,72 @@ export const usePlayerStore = defineStore('player', () => {
     showDetailPanel.value = !showDetailPanel.value
   }
 
+  // 把当前歌词和播放进度同步给桌面歌词窗口（若已打开）
+  function syncLyric() {
+    window.electron?.sendLyricSync?.({
+      lrcText: lrcText.value,
+      currentTime: currentTime.value,
+    })
+  }
+
+  // 加载当前歌曲的歌词（带缓存），加载完立即同步到桌面歌词窗口
+  async function loadLyric() {
+    const url = currentMusic.value?.lyricUrl
+    if (!url) {
+      lrcText.value = ''
+      syncLyric()
+      return
+    }
+    if (lrcCache.has(url)) {
+      lrcText.value = lrcCache.get(url)
+      syncLyric()
+      return
+    }
+    try {
+      const { data } = await axios.get(url, { timeout: 5000 })
+      lrcCache.set(url, data)
+      lrcText.value = data
+    } catch {
+      lrcText.value = ''
+    }
+    syncLyric()
+  }
+
+  // 打开/关闭桌面歌词窗口（仅 Electron 环境有效）
+  function openLyric() {
+    lyricVisible.value = true
+    window.electron?.openLyric?.()
+    // 窗口加载需要一点时间，延迟推送一次当前状态，避免刚打开是空的
+    setTimeout(syncLyric, 300)
+  }
+
+  function closeLyric() {
+    lyricVisible.value = false
+    window.electron?.closeLyric?.()
+  }
+
+  // 点击按钮开关桌面歌词
+  function toggleLyric() {
+    if (lyricVisible.value) closeLyric()
+    else openLyric()
+  }
+
+  // 歌词窗口被外部关闭（如 Alt+F4）时同步状态，避免按钮高亮卡住
+  window.electron?.onLyricClosed?.(() => {
+    lyricVisible.value = false
+  })
+
+  // 切歌时自动加载歌词；播放进度变化时同步到桌面歌词窗口
+  watch(currentMusic, loadLyric, { immediate: true })
+  watch(currentTime, syncLyric)
+
   // 返回状态和方法，使它们可以在组件中使用
   return {
     currentMusic, isPlaying, currentTime, duration, volume, playMode,
-    playList, currentIndex, showDetailPanel,
+    playList, currentIndex, showDetailPanel, lrcText, lyricVisible,
     hasCurrent, hasNext, hasPrev,
     play, playListAll, togglePlay, pause, resume, next, prev,
-    setVolume, toggleMode, removeFromList, toggleDetailPanel
+    setVolume, toggleMode, removeFromList, toggleDetailPanel,
+    openLyric, closeLyric, toggleLyric
   }
 })

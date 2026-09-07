@@ -5,6 +5,10 @@ let mainWindow = null
 let lyricWindow = null
 let tray = null
 
+// 开发模式下加载 Vite dev server（支持 HMR 热更新），打包后加载 dist 静态文件
+const isDev = !app.isPackaged
+const devServerUrl = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173'
+
 function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
@@ -20,8 +24,8 @@ function createMainWindow() {
     icon: path.join(__dirname, '..', '..', 'src', 'assets', 'icon.png')
   })
 
-  if (process.env.VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
+  if (isDev) {
+    mainWindow.loadURL(devServerUrl)
   } else {
     mainWindow.loadFile(path.join(__dirname, '..', '..', 'dist', 'index.html'))
   }
@@ -47,14 +51,18 @@ function createLyricWindow() {
     }
   })
 
-  const url = process.env.VITE_DEV_SERVER_URL
-    ? process.env.VITE_DEV_SERVER_URL + '#/desktop-lyric'
+  const url = isDev
+    ? devServerUrl + '#/desktop-lyric'
     : `file://${path.join(__dirname, '..', '..', 'dist', 'index.html')}#/desktop-lyric`
 
   lyricWindow.loadURL(url)
 
   lyricWindow.on('closed', () => {
     lyricWindow = null
+    // 通知主窗口，让“桌面歌词”按钮取消高亮
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('lyric:closed')
+    }
   })
 }
 
