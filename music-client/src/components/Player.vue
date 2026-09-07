@@ -7,8 +7,9 @@
         <div class="player-name">{{ playerStore.currentMusic?.name || '未在播放' }}</div>
         <div class="player-artist">{{ playerStore.currentMusic?.artistName || '--' }}</div>
       </div>
-      <el-button circle size="small" :type="isFavorited ? 'danger' : 'default'" @click.stop="toggleFavorite" title="收藏">
-        <Icon icon="mdi:heart" />
+      <el-button circle size="small" :type="isFav ? 'danger' : 'default'" @click.stop="toggleFav"
+        :title="isFav ? '取消收藏' : '收藏'">
+        <Icon :icon="isFav ? 'mdi:heart' : 'mdi:heart-outline'" />
       </el-button>
     </div>
 
@@ -60,13 +61,8 @@
     </div>
 
     <!-- 隐藏的 Audio 元素 -->
-    <audio ref="audioEl" :src="audioSrc" preload="auto"
-    @timeupdate="onTimeUpdate"
-    @loadedmetadata="onLoaded" 
-    @ended="onEnded"
-    @play="playerStore.isPlaying = true" 
-    @pause="playerStore.isPlaying = false" 
-    />
+    <audio ref="audioEl" :src="audioSrc" preload="auto" @timeupdate="onTimeUpdate" @loadedmetadata="onLoaded"
+      @ended="onEnded" @play="playerStore.isPlaying = true" @pause="playerStore.isPlaying = false" />
 
     <!-- 播放列表弹窗 -->
     <div v-if="showList" class="playlist-popup" @click.self="showList = false">
@@ -90,12 +86,17 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { usePlayerStore } from '../stores/playerStore'
+import { useFavoriteStore } from '../stores/favoriteStore'
+import { useUserStore } from '../stores/userStore'
 import * as historyAPI from '../api/history'
 
 const playerStore = usePlayerStore()//播放状态数据管理
+const favoriteStore = useFavoriteStore()
+const userStore = useUserStore()
 const audioEl = ref(null)//audio 元素的引用 , ref 是 Vue 3 中的响应式引用，用于在模板中绑定和操作 DOM 元素
 const showList = ref(false)//播放列表弹窗的显示状态
-const isFavorited = ref(false)//当前音乐是否被收藏的状态
+// 当前音乐是否已收藏（由 favoriteStore 统一维护，播放器/详情/收藏页保持一致）
+const isFav = computed(() => favoriteStore.isFavorite(playerStore.currentMusic?.id))
 
 // 计算属性，获取当前播放音乐的音频源 URL，如果没有音乐在播放，则返回空字符串
 const defaultCover = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><rect fill="#333" width="50" height="50"/><text fill="#666" x="15" y="32" font-size="16">♪</text></svg>')
@@ -181,9 +182,17 @@ function seek(e) {
   }
 }
 
-// 收藏
-function toggleFavorite() {
-  // TODO: 对接后端
+// 收藏/取消收藏当前音乐（未登录时弹出登录框）
+async function toggleFav() {
+  if (!userStore.isLogin) {
+    userStore.openLogin()
+    return
+  }
+  const music = playerStore.currentMusic
+  if (!music) return
+  try {
+    await favoriteStore.toggle(music)
+  } catch { /* ignore */ }
 }
 
 // 记录播放历史

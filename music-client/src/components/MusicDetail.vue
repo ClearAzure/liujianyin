@@ -60,13 +60,16 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { usePlayerStore } from '../stores/playerStore.js'
-import * as favoriteAPI from '../api/favorite.js'
+import { useFavoriteStore } from '../stores/favoriteStore.js'
+import { useUserStore } from '../stores/userStore.js'
 import Lyric from '../components/Lyric.vue'
 
 const playerStore = usePlayerStore()
-const isFav = ref(false)
+const favoriteStore = useFavoriteStore()
+const userStore = useUserStore()
+const isFav = computed(() => favoriteStore.isFavorite(playerStore.currentMusic?.id))
 
 const defaultCover = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect fill="#1a1a2e" width="300" height="300"/><text fill="#444" x="120" y="170" font-size="50">♪</text></svg>')
 
@@ -82,16 +85,14 @@ function closePanel() {
 }
 
 async function toggleFav() {
+  if (!userStore.isLogin) {
+    userStore.openLogin()
+    return
+  }
   const music = playerStore.currentMusic
   if (!music) return
   try {
-    if (isFav.value) {
-      await favoriteAPI.remove(music.id)
-      isFav.value = false
-    } else {
-      await favoriteAPI.add(music.id)
-      isFav.value = true
-    }
+    await favoriteStore.toggle(music)
   } catch { /* ignore */ }
 }
 </script>

@@ -13,6 +13,7 @@
           <th>歌手</th>
           <th>专辑</th>
           <th>时长</th>
+          <th v-if="$slots.actions" class="col-actions"></th>
         </tr>
       </thead>
       <tbody>
@@ -26,6 +27,9 @@
           <td>{{ music.artistName }}</td>
           <td>{{ music.albumName }}</td>
           <td>{{ formatDuration(music.duration) }}</td>
+          <td v-if="$slots.actions" class="col-actions">
+            <slot name="actions" :music="music" />
+          </td>
         </tr>
       </tbody>
 
