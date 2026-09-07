@@ -26,8 +26,11 @@
 <!-- 用户已登录(根据token是否为空)，显示用户信息和退出按钮 -->
  
       <template v-if="userStore.isLogin">
-        <span class="user-avatar">{{ userStore.userInfo?.nickname?.charAt(0) || '?' }}</span>
-        <span class="user-name">{{ userStore.userInfo?.nickname }}</span>
+        <div class="user-info" @click="$router.push('/profile')" title="个人主页">
+          <img v-if="userStore.userInfo?.avatarUrl" :src="userStore.userInfo.avatarUrl" class="user-avatar-img" alt="头像" />
+          <span v-else class="user-avatar">{{ userStore.userInfo?.nickname?.charAt(0) || '?' }}</span>
+          <span class="user-name">{{ userStore.userInfo?.nickname }}</span>
+        </div>
         <el-button text size="small" @click="userStore.logout()">退出</el-button>
       </template>
 
@@ -128,3 +131,14 @@ function minimize() { window.electron?.minimize() }
 function maximize() { window.electron?.maximize() }
 function closeWin() { window.electron?.close() }
 </script>
+
+<style scoped>
+.user-info {
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer; -webkit-app-region: no-drag;
+}
+.user-info:hover .user-name { color: var(--text-primary); }
+.user-avatar-img {
+  width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
+}
+</style>

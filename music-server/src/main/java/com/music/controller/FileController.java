@@ -43,7 +43,7 @@ public class FileController {
     }
 
     /**
-     * 临时接口：一键上传歌曲（mp3 + 封面 + 歌词）
+     * 一键上传歌曲（mp3 + 封面 + 歌词）
      * POST /api/file/upload/song
      * multipart/form-data:
      *   name        - 歌曲名

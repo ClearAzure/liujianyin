@@ -34,6 +34,16 @@ public class MusicService {
         return toVO(music);
     }
 
+    // 只构建 VO，不增加播放次数。供歌单/收藏/历史等“列表展示”场景使用，
+    // 避免仅仅是浏览列表就让每首歌的播放次数 +1
+    public MusicVO getVO(Long id) {
+        Music music = musicMapper.findById(id);
+        if (music == null) {
+            return null;
+        }
+        return toVO(music);
+    }
+
     public MusicVO random() {
         Music music = musicMapper.random();
         if (music == null) {

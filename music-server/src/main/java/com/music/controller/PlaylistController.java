@@ -3,6 +3,7 @@ package com.music.controller;
 import com.music.common.Result;
 import com.music.dto.AddMusicDTO;
 import com.music.dto.PlaylistCreateDTO;
+import com.music.dto.PlaylistUpdateDTO;
 import com.music.entity.Playlist;
 import com.music.service.PlaylistService;
 import com.music.vo.PlaylistVO;
@@ -42,6 +43,20 @@ public class PlaylistController {
     @PostMapping("/addMusic")
     public Result<?> addMusic(@RequestBody AddMusicDTO dto) {
         playlistService.addMusic(dto.getPlaylistId(), dto.getMusicId());
+        return Result.success();
+    }
+
+    @DeleteMapping("/{id}/music/{musicId}")
+    public Result<?> removeMusic(@PathVariable Long id, @PathVariable Long musicId, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        playlistService.removeMusic(id, userId, musicId);
+        return Result.success();
+    }
+
+    @PutMapping("/{id}")
+    public Result<?> update(@PathVariable Long id, @RequestBody PlaylistUpdateDTO dto, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        playlistService.update(id, userId, dto.getName(), dto.getCoverUrl());
         return Result.success();
     }
 

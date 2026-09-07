@@ -59,6 +59,21 @@ public class UserService {
         return toVO(user);
     }
 
+    public UserVO updateUserInfo(Long userId, String nickname, String avatarUrl) {
+        User user = userMapper.findById(userId);
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        if (nickname != null && !nickname.isBlank()) {
+            user.setNickname(nickname.trim());
+        }
+        if (avatarUrl != null) {
+            user.setAvatarUrl(avatarUrl);
+        }
+        userMapper.update(user);
+        return getUserInfo(userId);
+    }
+
     private UserVO toVO(User user) {
         return UserVO.builder()
                 .id(user.getId())

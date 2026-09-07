@@ -5,6 +5,7 @@ const routes = [
   { path: '/', name: 'Home', component: () => import('../views/Home.vue') },
   { path: '/search', name: 'Search', component: () => import('../views/Search.vue') },
   { path: '/favorite', name: 'Favorite', component: () => import('../views/Favorite.vue'), meta: { requiresAuth: true } },
+  { path: '/profile', name: 'Profile', component: () => import('../views/Profile.vue'), meta: { requiresAuth: true } },
   { path: '/history', name: 'History', component: () => import('../views/History.vue'), meta: { requiresAuth: true } },
   { path: '/playlist/:id', name: 'PlaylistDetail', component: () => import('../views/PlaylistDetail.vue'), meta: { requiresAuth: true } },
   { path: '/upload', name: 'Upload', component: () => import('../views/Upload.vue'), meta: { requiresAuth: true } },

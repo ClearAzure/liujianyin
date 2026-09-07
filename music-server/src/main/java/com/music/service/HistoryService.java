@@ -28,7 +28,7 @@ public class HistoryService {
         List<Long> musicIds = historyMapper.findRecentMusicIds(userId, 50);
         List<MusicVO> result = new ArrayList<>();
         for (Long mid : musicIds) {
-            MusicVO mv = musicService.getDetail(mid);
+            MusicVO mv = musicService.getVO(mid);
             if (mv != null) result.add(mv);
         }
         return result;

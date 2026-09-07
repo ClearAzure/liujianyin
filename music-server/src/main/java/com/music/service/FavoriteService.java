@@ -35,7 +35,7 @@ public class FavoriteService {
         List<Long> musicIds = favoriteMapper.findMusicIdsByUserId(userId);
         List<MusicVO> result = new ArrayList<>();
         for (Long mid : musicIds) {
-            MusicVO mv = musicService.getDetail(mid);
+            MusicVO mv = musicService.getVO(mid);
             if (mv != null) result.add(mv);
         }
         return result;

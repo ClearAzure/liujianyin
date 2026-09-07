@@ -13,7 +13,7 @@
           <th>歌手</th>
           <th>专辑</th>
           <th>时长</th>
-          <th v-if="$slots.actions" class="col-actions"></th>
+          <th class="col-actions"></th>
         </tr>
       </thead>
       <tbody>
@@ -27,8 +27,11 @@
           <td>{{ music.artistName }}</td>
           <td>{{ music.albumName }}</td>
           <td>{{ formatDuration(music.duration) }}</td>
-          <td v-if="$slots.actions" class="col-actions">
-            <slot name="actions" :music="music" />
+          <td class="col-actions">
+            <div class="row-actions">
+              <slot name="actions" :music="music" />
+              <SongMenu :music="music" :playlist-id="playlistId" @removed="emit('removed')" />
+            </div>
           </td>
         </tr>
       </tbody>
@@ -41,10 +44,14 @@
 
 <script setup>
 import { usePlayerStore } from '../stores/playerStore'
+import SongMenu from './SongMenu.vue'
 
 const props = defineProps({
-  songs: { type: Array, default: () => [] }
+  songs: { type: Array, default: () => [] },
+  playlistId: { type: [Number, String], default: null }
 })
+
+const emit = defineEmits(['removed'])
 
 const playerStore = usePlayerStore()
 
@@ -74,3 +81,7 @@ function formatDuration(sec) {
 // 组件负责 UI 和用户操作，Store 负责跨组件共享的业务状态
 // MusicList 并不负责“真正播放音乐”，它只是负责响应用户操作，然后把播放任务交给 playerStore
 </script>
+
+<style scoped>
+.row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+</style>

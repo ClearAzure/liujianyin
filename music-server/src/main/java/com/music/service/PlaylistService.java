@@ -54,6 +54,28 @@ public class PlaylistService {
         playlistMapper.insertMusic(pm);
     }
 
+    public void removeMusic(Long playlistId, Long userId, Long musicId) {
+        Playlist playlist = playlistMapper.findById(playlistId);
+        if (playlist == null || !playlist.getUserId().equals(userId)) {
+            throw new BusinessException("歌单不存在或无权操作");
+        }
+        playlistMapper.deleteMusic(playlistId, musicId);
+    }
+
+    public void update(Long playlistId, Long userId, String name, String coverUrl) {
+        Playlist playlist = playlistMapper.findById(playlistId);
+        if (playlist == null || !playlist.getUserId().equals(userId)) {
+            throw new BusinessException("歌单不存在或无权操作");
+        }
+        if (name != null && !name.isBlank()) {
+            playlist.setName(name.trim());
+        }
+        if (coverUrl != null) {
+            playlist.setCoverUrl(coverUrl);
+        }
+        playlistMapper.update(playlist);
+    }
+
     public void delete(Long playlistId, Long userId) {
         playlistMapper.delete(playlistId, userId);
     }
@@ -62,7 +84,7 @@ public class PlaylistService {
         List<Long> musicIds = playlistMapper.findMusicIdsByPlaylistId(playlist.getId());
         List<MusicVO> songs = new ArrayList<>();
         for (Long mid : musicIds) {
-            MusicVO mv = musicService.getDetail(mid);
+            MusicVO mv = musicService.getVO(mid);
             if (mv != null) songs.add(mv);
         }
         return PlaylistVO.builder()

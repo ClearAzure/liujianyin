@@ -40,6 +40,14 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  // 更新昵称/头像等资料，返回更新后的 UserVO 并同步到本地
+  async function update(data) {
+    const updated = await userAPI.update(data)
+    userInfo.value = updated
+    localStorage.setItem('userInfo', JSON.stringify(updated))
+    return updated
+  }
+
   function logout() {
     token.value = ''
     userInfo.value = null
@@ -55,5 +63,5 @@ export const useUserStore = defineStore('user', () => {
     showLogin.value = false
   }
 
-  return { token, userInfo, isLogin, showLogin, login, register, fetchUserInfo, logout, openLogin, closeLogin }
+  return { token, userInfo, isLogin, showLogin, login, register, fetchUserInfo, update, logout, openLogin, closeLogin }
 })

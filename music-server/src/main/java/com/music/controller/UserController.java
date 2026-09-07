@@ -3,6 +3,7 @@ package com.music.controller;
 import com.music.common.Result;
 import com.music.dto.LoginDTO;
 import com.music.dto.RegisterDTO;
+import com.music.dto.UserUpdateDTO;
 import com.music.service.UserService;
 import com.music.vo.LoginVO;
 import com.music.vo.UserVO;
@@ -33,6 +34,13 @@ public class UserController {
     public Result<UserVO> info(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         UserVO vo = userService.getUserInfo(userId);
+        return Result.success(vo);
+    }
+
+    @PutMapping("/info")
+    public Result<UserVO> updateInfo(@RequestBody UserUpdateDTO dto, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        UserVO vo = userService.updateUserInfo(userId, dto.getNickname(), dto.getAvatarUrl());
         return Result.success(vo);
     }
 }

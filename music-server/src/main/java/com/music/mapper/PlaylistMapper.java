@@ -20,10 +20,14 @@ public interface PlaylistMapper {
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Playlist playlist);
 
+    @Update("UPDATE playlist SET name = #{name}, cover_url = #{coverUrl} WHERE id = #{id}")
+    int update(Playlist playlist);
+
     @Delete("DELETE FROM playlist WHERE id = #{id} AND user_id = #{userId}")
     int delete(@Param("id") Long id, @Param("userId") Long userId);
 
-    @Select("SELECT music_id FROM playlist_music WHERE playlist_id = #{playlistId} ORDER BY sort_order")
+    // 按 sort_order 再按自增 id 排序，保证“添加顺序”稳定，最后一条即“最近添加”
+    @Select("SELECT music_id FROM playlist_music WHERE playlist_id = #{playlistId} ORDER BY sort_order, id")
     List<Long> findMusicIdsByPlaylistId(Long playlistId);
 
     @Insert("INSERT INTO playlist_music(playlist_id, music_id, sort_order, create_time) " +

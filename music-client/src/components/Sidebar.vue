@@ -17,7 +17,9 @@
       <div v-for="pl in playlistStore.myPlaylists" :key="pl.id" class="nav-item"
         @click="$router.push(`/playlist/${pl.id}`)">
         <!-- $router.push路由跳转 -->
-        <Icon icon="mdi:playlist-music" /> {{ pl.name }}
+        <img v-if="pl.coverUrl" :src="pl.coverUrl" class="pl-thumb" alt="" />
+        <Icon v-else icon="mdi:playlist-music" />
+        <span class="pl-name">{{ pl.name }}</span>
       </div>
 
       <div class="nav-item create-btn" @click="showCreate = true">
@@ -71,3 +73,11 @@ async function doCreate() {
   }
 }
 </script>
+
+<style scoped>
+.pl-thumb {
+  width: 20px; height: 20px; border-radius: 4px; object-fit: cover;
+  vertical-align: middle; margin-right: 6px;
+}
+.pl-name { vertical-align: middle; }
+</style>

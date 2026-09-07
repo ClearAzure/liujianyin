@@ -20,3 +20,11 @@ export function addMusic(playlistId, musicId) {
 export function remove(id) {
   return request.delete(`/playlist/${id}`)
 }
+// 更新歌单（改名/换封面）
+export function update(id, data) {
+  return request.put(`/playlist/${id}`, data)
+}
+// 从歌单移除歌曲
+export function removeMusic(playlistId, musicId) {
+  return request.delete(`/playlist/${playlistId}/music/${musicId}`)
+}

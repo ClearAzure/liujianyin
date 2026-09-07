@@ -11,6 +11,7 @@
         :title="isFav ? '取消收藏' : '收藏'">
         <Icon :icon="isFav ? 'mdi:heart' : 'mdi:heart-outline'" />
       </el-button>
+      <SongMenu v-if="playerStore.currentMusic" :music="playerStore.currentMusic" />
     </div>
 
     <!-- 中间：播放控制 -->
@@ -89,6 +90,7 @@ import { usePlayerStore } from '../stores/playerStore'
 import { useFavoriteStore } from '../stores/favoriteStore'
 import { useUserStore } from '../stores/userStore'
 import * as historyAPI from '../api/history'
+import SongMenu from './SongMenu.vue'
 
 const playerStore = usePlayerStore()//播放状态数据管理
 const favoriteStore = useFavoriteStore()

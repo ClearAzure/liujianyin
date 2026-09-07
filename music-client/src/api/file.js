@@ -5,3 +5,9 @@ export function uploadSong(formData) {
     headers: { 'Content-Type': 'multipart/form-data' }
   })
 }
+
+export function uploadImage(formData) {
+  return request.post('/file/upload/image', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
