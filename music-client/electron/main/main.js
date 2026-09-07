@@ -1,0 +1,126 @@
+const { app, BrowserWindow, ipcMain, dialog, Tray, Menu, nativeImage } = require('electron')
+const path = require('path')
+
+let mainWindow = null
+let lyricWindow = null
+let tray = null
+
+function createMainWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    minWidth: 900,
+    minHeight: 600,
+    frame: false,
+    webPreferences: {
+      preload: path.join(__dirname, '..', 'preload', 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    },
+    icon: path.join(__dirname, '..', '..', 'src', 'assets', 'icon.png')
+  })
+
+  if (process.env.VITE_DEV_SERVER_URL) {
+    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
+  } else {
+    mainWindow.loadFile(path.join(__dirname, '..', '..', 'dist', 'index.html'))
+  }
+}
+
+function createLyricWindow() {
+  if (lyricWindow) {
+    lyricWindow.focus()
+    return
+  }
+  lyricWindow = new BrowserWindow({
+    width: 800,
+    height: 120,
+    transparent: true,
+    frame: false,
+    alwaysOnTop: true,
+    resizable: false,
+    skipTaskbar: true,
+    webPreferences: {
+      preload: path.join(__dirname, '..', 'preload', 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  })
+
+  const url = process.env.VITE_DEV_SERVER_URL
+    ? process.env.VITE_DEV_SERVER_URL + '#/desktop-lyric'
+    : `file://${path.join(__dirname, '..', '..', 'dist', 'index.html')}#/desktop-lyric`
+
+  lyricWindow.loadURL(url)
+
+  lyricWindow.on('closed', () => {
+    lyricWindow = null
+  })
+}
+
+// IPC Handlers
+function setupIPC() {
+  ipcMain.handle('window:minimize', () => mainWindow?.minimize())
+  ipcMain.handle('window:maximize', () => {
+    if (mainWindow?.isMaximized()) {
+      mainWindow.unmaximize()
+    } else {
+      mainWindow?.maximize()
+    }
+  })
+  ipcMain.handle('window:close', () => mainWindow?.close())
+  ipcMain.handle('window:isMaximized', () => mainWindow?.isMaximized())
+
+  ipcMain.handle('lyric:open', () => createLyricWindow())
+  ipcMain.handle('lyric:close', () => lyricWindow?.close())
+
+  ipcMain.handle('dialog:selectMusic', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      filters: [{ name: '音乐文件', extensions: ['mp3', 'flac', 'wav', 'ogg'] }],
+      properties: ['openFile']
+    })
+    return result.canceled ? null : result.filePaths[0]
+  })
+}
+
+function setupTray() {
+  const icon = nativeImage.createEmpty()
+  tray = new Tray(icon)
+  const menu = Menu.buildFromTemplate([
+    { label: '播放/暂停', click: () => mainWindow?.webContents.send('player:toggle') },
+    { label: '上一首', click: () => mainWindow?.webContents.send('player:prev') },
+    { label: '下一首', click: () => mainWindow?.webContents.send('player:next') },
+    { type: 'separator' },
+    { label: '显示主窗口', click: () => mainWindow?.show() },
+    { type: 'separator' },
+    { label: '退出', click: () => app.quit() }
+  ])
+  tray.setToolTip('琉涧音')
+  tray.setContextMenu(menu)
+  tray.on('click', () => mainWindow?.show())
+}
+
+app.whenReady().then(() => {
+  setupIPC()
+  createMainWindow()
+  setupTray()
+})
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createMainWindow()
+  }
+})
+
+// Send lyric sync data to lyric window
+ipcMain.on('lyric:sync', (event, data) => {
+  if (lyricWindow && !lyricWindow.isDestroyed()) {
+    lyricWindow.webContents.send('lyric:update', data)
+  }
+})

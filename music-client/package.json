@@ -1,0 +1,29 @@
+{
+  "name": "music-client",
+  "version": "1.0.0",
+  "description": "琉涧音 - 桌面音乐客户端",
+  "main": "electron/main/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:build": "vite build && electron-builder"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
+    "@iconify/vue": "^5.0.1",
+    "axios": "^1.7.3",
+    "element-plus": "^2.14.4",
+    "pinia": "^2.1.7",
+    "vue": "^3.4.35",
+    "vue-router": "^4.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.2",
+    "concurrently": "^8.2.2",
+    "electron": "^31.3.0",
+    "electron-builder": "^24.13.3",
+    "vite": "^5.4.0",
+    "wait-on": "^7.2.0"
+  }
+}
