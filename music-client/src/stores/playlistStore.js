@@ -36,6 +36,11 @@ export const usePlaylistStore = defineStore('playlist', () => {
   async function removeMusic(playlistId, musicId) {
     await playlistAPI.removeMusic(playlistId, musicId)
   }
+// 删除歌单
+  async function remove(id) {
+    await playlistAPI.remove(id)
+    await fetchMyPlaylists()
+  }
 
-  return { myPlaylists, fetchMyPlaylists, create, getDetail, addMusic, update, removeMusic }
+  return { myPlaylists, fetchMyPlaylists, create, getDetail, addMusic, update, removeMusic, remove }
 })

@@ -3,8 +3,11 @@ import vue from '@vitejs/plugin-vue'
 import path from 'path'
 
 export default defineConfig({
+  // 这是 Vue 项目，请使用 Vue 插件
   plugins: [vue()],
+  // 打包后资源使用相对路径，方便 Electron 本地加载。
   base: './',
+  // @ 就代表 src。
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src')
@@ -30,3 +33,12 @@ export default defineConfig({
     }
   }
 })
+// 浏览器
+//    │
+//    │ /api/music
+//    ↓
+// Vite Dev Server :5173
+//    │
+//    │ proxy
+//    ↓
+// Spring Boot :8080

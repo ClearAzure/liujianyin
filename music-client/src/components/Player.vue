@@ -90,6 +90,7 @@ import { usePlayerStore } from '../stores/playerStore'
 import { useFavoriteStore } from '../stores/favoriteStore'
 import { useUserStore } from '../stores/userStore'
 import * as historyAPI from '../api/history'
+import * as musicAPI from '../api/music'
 import SongMenu from './SongMenu.vue'
 
 const playerStore = usePlayerStore()//播放状态数据管理
@@ -134,7 +135,7 @@ watch(() => playerStore.isPlaying, (playing) => {
 // 关键：切歌时 isPlaying 不变（仍是 true），watch(isPlaying) 不会触发，必须在这里手动 play
 watch(() => playerStore.currentMusic, (music) => {
   if (!music) return
-  recordHistory(music.id)
+  recordPlay(music.id)
   const el = audioEl.value
   if (!el) return
   if (playerStore.isPlaying) {
@@ -197,9 +198,17 @@ async function toggleFav() {
   } catch { /* ignore */ }
 }
 
-// 记录播放历史
-function recordHistory(musicId) {
+// 记录播放历史，并累计播放次数；播放计数接口返回最新值，同步回当前音乐对象
+function recordPlay(musicId) {
   historyAPI.add(musicId).catch(() => { })
+  musicAPI.play(musicId)
+    .then((count) => {
+      const m = playerStore.currentMusic
+      if (m && m.id === musicId && typeof count === 'number') {
+        m.playCount = count
+      }
+    })
+    .catch(() => { })
 }
 
 // 格式化时间，将秒数转换为 mm:ss 的格式

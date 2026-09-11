@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
-@RestControllerAdvice
+@RestControllerAdvice//专门在整个 Controller 层附近监听异常
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)

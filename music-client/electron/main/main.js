@@ -1,9 +1,18 @@
 const { app, BrowserWindow, ipcMain, dialog, Tray, Menu, nativeImage } = require('electron')
+
+// app 控制整个 Electron 应用生命周期
+// BrowserWindow 创建窗口
+// ipcMain 主进程接收 IPC
+// dialog 系统对话框
+// Tray 系统托盘
+// Menu 托盘菜单
+// nativeImage 处理图标
+
 const path = require('path')
 
-let mainWindow = null
-let lyricWindow = null
-let tray = null
+let mainWindow = null//主窗口
+let lyricWindow = null//桌面歌词窗口
+let tray = null//系统托盘
 
 // 开发模式下加载 Vite dev server（支持 HMR 热更新），打包后加载 dist 静态文件
 const isDev = !app.isPackaged

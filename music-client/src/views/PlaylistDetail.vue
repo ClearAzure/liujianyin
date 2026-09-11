@@ -3,7 +3,7 @@
     <!-- 歌单头部：封面 + 名称 + 编辑入口 -->
     <div class="pl-header">
       <div class="pl-cover" @click="openEdit" title="点击编辑歌单">
-        <img v-if="playlist.coverUrl" :src="playlist.coverUrl" alt="cover" />
+        <img v-if="coverUrl" :src="coverUrl" alt="cover" />
         <div v-else class="pl-cover-placeholder"><Icon icon="mdi:playlist-music" /></div>
         <div class="pl-cover-mask"><Icon icon="mdi:pencil" /> 编辑</div>
       </div>
@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { usePlaylistStore } from '../stores/playlistStore'
 import MusicList from '../components/MusicList.vue'
@@ -50,6 +50,13 @@ import { ElMessage } from 'element-plus'
 const route = useRoute()
 const playlistStore = usePlaylistStore()
 const playlist = ref(null)
+
+// 封面：优先自定义封面，否则用最近添加的一首的封面
+const coverUrl = computed(() => {
+  if (playlist.value?.coverUrl) return playlist.value.coverUrl
+  const songs = playlist.value?.songs || []
+  return songs.length ? songs[songs.length - 1].coverUrl : ''
+})
 
 const editDialog = ref(false)
 const editName = ref('')

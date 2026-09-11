@@ -22,10 +22,28 @@ public class SongUploadService {
     private final ArtistMapper artistMapper;
     private final AlbumMapper albumMapper;
 
+    /**
+     * 一键上传歌曲：查找/创建歌手、创建专辑、上传音乐/封面/歌词文件、写入 music 表。
+     *
+     * @param name 歌曲名
+     * @param artistName 歌手名（不存在则自动创建）
+     * @param albumName 专辑名（可空）
+     *
+     * @param duration 时长（秒，可空）//前端自动计算
+     *
+     * @param musicFile 音乐文件（可空）
+     * @param coverFile 封面图片（可空）
+     * @param lyricFile 歌词文件（可空）
+     *
+     * @return 上传结果，含 name、 artistId、artistName、    albumId、albumName、  musicUrl、   coverUrl、lyricUrl、  musicId、    success 等字段
+     */
     public Map<String, Object> uploadSong(
             String name,
             String artistName,
             String albumName,
+
+            Integer duration,
+
             MultipartFile musicFile,
             MultipartFile coverFile,
             MultipartFile lyricFile) {
@@ -76,13 +94,17 @@ public class SongUploadService {
 
         // 4. 写入 music 表
         Music music = new Music();
+
         music.setName(name);
         music.setArtistId(artist.getId());
         if (album != null) music.setAlbumId(album.getId());
+
         music.setMusicUrl(musicUrl);
         music.setCoverUrl(coverUrl);
         music.setLyricUrl(lyricUrl);
-        music.setDuration(0);  // 简单起见暂不解析时长
+
+        music.setDuration(duration != null ? duration : 0);  // 时长由前端随表单上传（浏览器解码器计算）
+
         musicMapper.insert(music);
         result.put("musicId", music.getId());
 

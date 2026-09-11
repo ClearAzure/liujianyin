@@ -104,6 +104,7 @@ const loginForm = reactive({
 function doSearch() {
   if (keyword.value.trim()) {
     // window.location.hash 表示是浏览器当前 URL 中的 # (包含)后面的部分
+    //encodeURIComponent字符串塞进 URL 参数里，先把里面可能有问题的特殊字符转义一下
     window.location.hash = `#/search?keyword=${encodeURIComponent(keyword.value.trim())}`
   }
 }

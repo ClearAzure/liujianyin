@@ -28,5 +28,5 @@ minio:
   bucket-lyric: lyric
 
 app:
-  jwt-secret: liu-jian-yin-music-app-jwt-secret-key-2024-very-long
+  jwt-secret: liu-jian-yin-music-app-jwt-secret-key-2026-very-long
   jwt-expiration: 604800000

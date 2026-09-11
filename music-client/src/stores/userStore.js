@@ -15,6 +15,7 @@ export const useUserStore = defineStore('user', () => {
   async function login(username, password) {
     const data = await userAPI.login(username, password)
 
+    // 登录成功后将 token 和用户信息存储到 Pinia 和 localStorage
     token.value = data.token
     userInfo.value = data.userInfo
     localStorage.setItem('token', data.token)
