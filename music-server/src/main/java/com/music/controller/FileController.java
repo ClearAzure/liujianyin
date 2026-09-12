@@ -3,9 +3,11 @@ package com.music.controller;
 import com.music.common.Result;
 import com.music.service.FileService;
 import com.music.service.SongUploadService;
+import com.music.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +23,7 @@ public class FileController {
 
     private final FileService fileService;//上传文件到MinIO,返回url
     private final SongUploadService songUploadService;//将url及其基本信息保存到数据库
+    private final UserService userService;
 
     @Operation(summary = "上传音乐文件", description = "上传 mp3 到 MinIO，返回 { url }。需登录。")
     @PostMapping("/upload/music")
@@ -61,9 +64,14 @@ public class FileController {
 @Parameter(description = "时长（秒，可选，默认 0）") @RequestParam(value = "duration", required = false, defaultValue = "0") Integer duration,
 @Parameter(description = "音乐文件（可选）")        @RequestParam(value = "musicFile", required = false) MultipartFile musicFile,
 @Parameter(description = "封面图片（可选）")        @RequestParam(value = "coverFile", required = false) MultipartFile coverFile,
-@Parameter(description = "歌词文件（可选）")        @RequestParam(value = "lyricFile", required = false) MultipartFile lyricFile) {
+@Parameter(description = "歌词文件（可选）")        @RequestParam(value = "lyricFile", required = false) MultipartFile lyricFile,
+@Parameter(description = "歌手头像图片（可选）")     @RequestParam(value = "artistAvatarFile", required = false) MultipartFile artistAvatarFile,
+        HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        userService.requireAdmin(userId);
+
         Map<String, Object> result = songUploadService.uploadSong(
-                name, artistName, albumName, duration, musicFile, coverFile, lyricFile);
+                name, artistName, albumName, duration, musicFile, coverFile, lyricFile, artistAvatarFile);
         return Result.success(result);
     }
 }

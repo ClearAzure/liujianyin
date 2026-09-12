@@ -8,4 +8,8 @@ import lombok.Data;
 public class PlaylistCreateDTO {
     @Schema(description = "歌单名称")
     private String name;
+    @Schema(description = "歌单封面URL（可选）")
+    private String coverUrl;
+    @Schema(description = "歌单简介（可选）")
+    private String description;
 }

@@ -34,6 +34,7 @@ public class SongUploadService {
      * @param musicFile 音乐文件（可空）
      * @param coverFile 封面图片（可空）
      * @param lyricFile 歌词文件（可空）
+     * @param artistAvatarFile 歌手头像图片（可空）
      *
      * @return 上传结果，含 name、 artistId、artistName、    albumId、albumName、  musicUrl、   coverUrl、lyricUrl、  musicId、    success 等字段
      */
@@ -46,7 +47,8 @@ public class SongUploadService {
 
             MultipartFile musicFile,
             MultipartFile coverFile,
-            MultipartFile lyricFile) {
+            MultipartFile lyricFile,
+            MultipartFile artistAvatarFile) {
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("name", name);
@@ -58,18 +60,27 @@ public class SongUploadService {
             artist.setName(artistName);
             artistMapper.insert(artist);
         }
+        // 若提供了歌手头像，上传并更新到歌手
+        if (artistAvatarFile != null && !artistAvatarFile.isEmpty()) {
+            String avatarUrl = fileService.uploadCover(artistAvatarFile);
+            artistMapper.updateAvatar(artist.getId(), avatarUrl);
+            result.put("artistAvatarUrl", avatarUrl);
+        }
         result.put("artistId", artist.getId());
         result.put("artistName", artist.getName());
 
-        // 2. 查找或创建专辑
+        // 2. 查找或创建专辑（按 专辑名 + 歌手ID 去重）
         Album album = null;
-        // 通过 name + artistId 简单匹配
-        // 这里直接用 INSERT 做简单处理，实际项目应加判断
+        boolean albumCreated = false;
         if (albumName != null && !albumName.isBlank()) {
-            album = new Album();
-            album.setName(albumName);
-            album.setArtistId(artist.getId());
-            albumMapper.insert(album);
+            album = albumMapper.findByNameAndArtistId(albumName, artist.getId());
+            if (album == null) {
+                album = new Album();
+                album.setName(albumName);
+                album.setArtistId(artist.getId());
+                albumMapper.insert(album);
+                albumCreated = true;
+            }
             result.put("albumId", album.getId());
             result.put("albumName", album.getName());
         }
@@ -90,6 +101,11 @@ public class SongUploadService {
         if (lyricFile != null && !lyricFile.isEmpty()) {
             lyricUrl = fileService.uploadLyric(lyricFile);
             result.put("lyricUrl", lyricUrl);
+        }
+
+        // 只在"本次新建"的专辑上设默认封面（已存在专辑的封面不动）
+        if (albumCreated && coverUrl != null) {
+            albumMapper.updateCover(album.getId(), coverUrl);
         }
 
         // 4. 写入 music 表

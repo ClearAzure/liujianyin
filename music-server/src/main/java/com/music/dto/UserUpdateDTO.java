@@ -10,4 +10,6 @@ public class UserUpdateDTO {
     private String nickname;
     @Schema(description = "头像URL")
     private String avatarUrl;
+    @Schema(description = "个性签名")
+    private String signature;
 }

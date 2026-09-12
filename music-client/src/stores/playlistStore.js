@@ -14,8 +14,8 @@ export const usePlaylistStore = defineStore('playlist', () => {
     return myPlaylists.value
   }
 // 创建歌单（返回新建的歌单对象，便于后续直接添加歌曲）
-  async function create(name) {
-    const playlist = await playlistAPI.create(name)
+  async function create(data) {
+    const playlist = await playlistAPI.create(data)
     await fetchMyPlaylists()
     return playlist
   }

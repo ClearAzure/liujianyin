@@ -8,7 +8,7 @@
     </div>
     <div class="section">
       <h2>热门推荐</h2>
-      <MusicList :songs="songs" />
+      <MusicList :songs="songs" @deleted="load" />
     </div>
 
     <!-- 分页条：卡片区与热门列表共用同一份数据，翻页同时生效 -->

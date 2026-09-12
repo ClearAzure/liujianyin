@@ -10,13 +10,14 @@
       <div class="pl-info">
         <h2>{{ playlist.name }}</h2>
         <p class="pl-meta">{{ playlist.songs?.length || 0 }} 首歌曲</p>
+        <p v-if="playlist.description" class="pl-desc">{{ playlist.description }}</p>
         <el-button type="danger" round @click="openEdit">
           <Icon icon="mdi:pencil" /> 编辑歌单
         </el-button>
       </div>
     </div>
 
-    <MusicList :songs="playlist.songs || []" :playlist-id="playlist.id" @removed="load" />
+    <MusicList :songs="playlist.songs || []" :playlist-id="playlist.id" @removed="load" @deleted="load" />
 
     <!-- 编辑歌单弹窗：改名 + 上传封面 -->
     <el-dialog v-model="editDialog" title="编辑歌单" width="400px" align-center>
@@ -29,6 +30,7 @@
           </div>
         </div>
         <el-input v-model="editName" placeholder="歌单名称" maxlength="50" />
+        <el-input v-model="editDescription" type="textarea" :rows="3" placeholder="简介" maxlength="200" />
         <input ref="fileInput" type="file" accept="image/*" hidden @change="onFileChange" />
       </div>
       <template #footer>
@@ -60,6 +62,7 @@ const coverUrl = computed(() => {
 
 const editDialog = ref(false)
 const editName = ref('')
+const editDescription = ref('')
 const coverPreview = ref('')
 const coverFile = ref(null)
 const fileInput = ref(null)
@@ -75,6 +78,7 @@ watch(() => route.params.id, load, { immediate: true })
 
 function openEdit() {
   editName.value = playlist.value.name
+  editDescription.value = playlist.value.description || ''
   coverPreview.value = playlist.value.coverUrl || ''
   coverFile.value = null
   editDialog.value = true
@@ -106,7 +110,7 @@ async function save() {
       const data = await fileAPI.uploadImage(formData)
       coverUrl = data.url
     }
-    await playlistStore.update(playlist.value.id, { name: editName.value.trim(), coverUrl })
+    await playlistStore.update(playlist.value.id, { name: editName.value.trim(), coverUrl, description: editDescription.value.trim() })
     await load()
     editDialog.value = false
     ElMessage.success('已保存')
@@ -143,6 +147,7 @@ async function save() {
 .pl-cover:hover .pl-cover-mask { opacity: 1; }
 .pl-info h2 { margin: 0 0 8px; font-size: 28px; }
 .pl-meta { margin: 0 0 16px; color: var(--text-muted); font-size: 14px; }
+.pl-desc { margin: 0 0 16px; color: var(--text-secondary); font-size: 14px; }
 
 .edit-body { display: flex; flex-direction: column; align-items: center; gap: 16px; }
 .edit-cover {

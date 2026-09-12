@@ -33,8 +33,8 @@ public interface UserMapper {
      * @param user 用户实体
      * @return 影响行数
      */
-    @Insert("INSERT INTO user(username, password, email, nickname, status, create_time, update_time) " +
-            "VALUES(#{username}, #{password}, #{email}, #{nickname}, 1, NOW(), NOW())")
+    @Insert("INSERT INTO user(username, password, email, nickname, role, status, create_time, update_time) " +
+            "VALUES(#{username}, #{password}, #{email}, #{nickname}, #{role}, 1, NOW(), NOW())")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(User user);
 
@@ -47,4 +47,14 @@ public interface UserMapper {
     @Update("UPDATE user SET nickname = #{nickname}, avatar_url = #{avatarUrl}, " +
             "signature = #{signature}, update_time = NOW() WHERE id = #{id}")
     int update(User user);
+
+    /**
+     * 更新用户角色。
+     *
+     * @param id 用户ID
+     * @param role 角色 0=普通用户 1=管理员
+     * @return 影响行数
+     */
+    @Update("UPDATE user SET role = #{role} WHERE id = #{id}")
+    int updateRole(@Param("id") Long id, @Param("role") Integer role);
 }

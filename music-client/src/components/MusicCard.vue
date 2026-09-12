@@ -9,7 +9,7 @@
     </div>
 <!-- 音乐卡片信息:歌曲名和作者 -->
     <div class="card-name">{{ music.name }}</div>
-    <div class="card-artist">{{ music.artistName }}</div>
+    <div class="card-artist" @click.stop="goArtist">{{ music.artistName }}</div>
   </div>
 </template>
 
@@ -29,4 +29,15 @@ const defaultCover = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="htt
 function playIt() {
   playerStore.play(props.music)
 }
+
+function goArtist() {
+  if (props.music.artistId) {
+    router.push(`/artist/${props.music.artistId}`)
+  }
+}
 </script>
+
+<style scoped>
+.card-artist { cursor: pointer; }
+.card-artist:hover { color: var(--accent); }
+</style>

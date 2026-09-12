@@ -10,4 +10,6 @@ public class PlaylistUpdateDTO {
     private String name;
     @Schema(description = "歌单封面URL")
     private String coverUrl;
+    @Schema(description = "歌单简介")
+    private String description;
 }

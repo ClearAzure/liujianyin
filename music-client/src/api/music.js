@@ -15,3 +15,8 @@ export function random() {
 export function hot(page = 1, size = 20) {
   return request.get('/music/hot', { params: { page, size } })
 }
+
+// 删除歌曲（管理员）
+export function remove(id) {
+  return request.delete(`/music/${id}`)
+}

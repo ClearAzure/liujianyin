@@ -1,7 +1,7 @@
 <template>
   <div class="page-favorite">
     <h2><Icon icon="mdi:heart" /> 我喜欢的音乐</h2>
-    <MusicList :songs="favoriteStore.favoriteSongs">
+    <MusicList :songs="favoriteStore.favoriteSongs" @deleted="favoriteStore.fetchFavorites()">
       <template #actions="{ music }">
         <el-button link type="danger" size="small" @click="remove(music)">取消收藏</el-button>
       </template>

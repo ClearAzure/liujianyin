@@ -26,7 +26,12 @@ public interface MusicMapper {
      * @param keyword 搜索关键字
      * @return 匹配的歌曲列表
      */
-    @Select("SELECT * FROM music WHERE name LIKE CONCAT('%', #{keyword}, '%') AND status = 1")
+    @Select("SELECT m.* FROM music m " +
+            "LEFT JOIN artist a ON m.artist_id = a.id " +
+            "LEFT JOIN album al ON m.album_id = al.id " +
+            "WHERE m.status = 1 AND (m.name LIKE CONCAT('%', #{keyword}, '%') " +
+            "OR a.name LIKE CONCAT('%', #{keyword}, '%') " +
+            "OR al.name LIKE CONCAT('%', #{keyword}, '%'))")
     List<Music> search(String keyword);
     //CONCAT() 是 MySQL 的字符串拼接函数。
     /**
@@ -56,6 +61,33 @@ public interface MusicMapper {
     long countActive();
 
     /**
+     * 查询某歌手的在架歌曲。
+     *
+     * @param artistId 歌手ID
+     * @return 歌曲列表
+     */
+    @Select("SELECT * FROM music WHERE artist_id = #{artistId} AND status = 1 ORDER BY id ASC")
+    List<Music> findByArtistId(Long artistId);
+
+    /**
+     * 查询某专辑的在架歌曲。
+     *
+     * @param albumId 专辑ID
+     * @return 歌曲列表
+     */
+    @Select("SELECT * FROM music WHERE album_id = #{albumId} AND status = 1 ORDER BY id ASC")
+    List<Music> findByAlbumId(Long albumId);
+
+    /**
+     * 查询某专辑第一首歌的封面（无自定义封面时兜底用）。
+     *
+     * @param albumId 专辑ID
+     * @return 封面URL，无歌曲返回 null
+     */
+    @Select("SELECT cover_url FROM music WHERE album_id = #{albumId} AND status = 1 ORDER BY id ASC LIMIT 1")
+    String findFirstCoverByAlbumId(Long albumId);
+
+    /**
      * 新增歌曲（默认播放量 0、状态 1，自动回填自增ID）。
      *
      * @param music 歌曲实体
@@ -76,4 +108,13 @@ public interface MusicMapper {
      */
     @Update("UPDATE music SET play_count = play_count + 1 WHERE id = #{id}")
     int incrementPlayCount(Long id);
+
+    /**
+     * 删除歌曲。
+     *
+     * @param id 歌曲ID
+     * @return 影响行数
+     */
+    @Delete("DELETE FROM music WHERE id = #{id}")
+    int deleteById(Long id);
 }

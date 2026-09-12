@@ -13,8 +13,14 @@
           <Icon icon="mdi:playlist-remove" />
           <span>移除当前歌单</span>
         </div>
-        <div class="menu-divider"></div>
       </template>
+      <template v-if="userStore.isAdmin">
+        <div class="menu-item menu-danger" @click="deleteMusic">
+          <Icon icon="mdi:delete" />
+          <span>删除歌曲</span>
+        </div>
+      </template>
+      <div v-if="playlistId || userStore.isAdmin" class="menu-divider"></div>
 
       <div class="menu-title">添加到歌单</div>
       <div v-if="!playlistStore.myPlaylists.length" class="menu-empty">还没有歌单，先创建一个吧</div>
@@ -38,6 +44,7 @@ import { ref } from 'vue'
 import { usePlaylistStore } from '../stores/playlistStore'
 import { useUserStore } from '../stores/userStore'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import * as musicAPI from '../api/music'
 
 const props = defineProps({
   music: { type: Object, required: true },
@@ -45,7 +52,7 @@ const props = defineProps({
   playlistId: { type: [Number, String], default: null }
 })
 
-const emit = defineEmits(['removed'])
+const emit = defineEmits(['removed', 'deleted'])
 
 const playlistStore = usePlaylistStore()
 const userStore = useUserStore()
@@ -80,7 +87,7 @@ async function createNew() {
       cancelButtonText: '取消',
       inputValidator: (v) => (v && v.trim() ? true : '名称不能为空')
     })
-    const pl = await playlistStore.create(value.trim())
+    const pl = await playlistStore.create({ name: value.trim() })
     await addTo(pl)
   } catch { /* 取消创建 */ }
 }
@@ -93,6 +100,26 @@ async function removeFromPlaylist() {
     emit('removed')
   } catch (e) {
     ElMessage.error(e.message || '移除失败')
+  }
+}
+
+async function deleteMusic() {
+  try {
+    await ElMessageBox.confirm(`确定删除歌曲「${props.music.name}」吗？此操作不可恢复。`, '删除歌曲', {
+      type: 'warning',
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+    })
+  } catch {
+    return // 用户取消
+  }
+  try {
+    await musicAPI.remove(props.music.id)
+    ElMessage.success('歌曲已删除')
+    popRef.value?.hide()
+    emit('deleted')
+  } catch (e) {
+    ElMessage.error(e.message || '删除失败')
   }
 }
 </script>

@@ -16,6 +16,10 @@ public class MusicVO {
     private String artistName;
     @Schema(description = "专辑名称")
     private String albumName;
+    @Schema(description = "歌手ID")
+    private Long artistId;
+    @Schema(description = "专辑ID")
+    private Long albumId;
     @Schema(description = "封面图URL")
     private String coverUrl;
     @Schema(description = "音频文件URL")

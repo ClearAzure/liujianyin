@@ -19,18 +19,20 @@
       <tbody>
         <tr v-for="(music, i) in songs" :key="music.id" @dblclick="playAt(i)" class="music-row">
           <td class="col-op">{{ i + 1 }}</td>
+          <td>{{ music.name }}</td>
           <td>
-            <span class="song-name" @click="$router.push(`/music/${music.id}`)">
-              {{ music.name }}
-            </span>
+            <router-link v-if="music.artistId" :to="`/artist/${music.artistId}`" class="cell-link">{{ music.artistName }}</router-link>
+            <template v-else>{{ music.artistName }}</template>
           </td>
-          <td>{{ music.artistName }}</td>
-          <td>{{ music.albumName }}</td>
+          <td>
+            <router-link v-if="music.albumId" :to="`/album/${music.albumId}`" class="cell-link">{{ music.albumName }}</router-link>
+            <template v-else>{{ music.albumName }}</template>
+          </td>
           <td>{{ formatDuration(music.duration) }}</td>
           <td class="col-actions">
             <div class="row-actions">
               <slot name="actions" :music="music" />
-              <SongMenu :music="music" :playlist-id="playlistId" @removed="emit('removed')" />
+              <SongMenu :music="music" :playlist-id="playlistId" @removed="emit('removed')" @deleted="emit('deleted')" />
             </div>
           </td>
         </tr>
@@ -51,7 +53,7 @@ const props = defineProps({
   playlistId: { type: [Number, String], default: null }
 })
 
-const emit = defineEmits(['removed'])
+const emit = defineEmits(['removed', 'deleted'])
 
 const playerStore = usePlayerStore()
 
@@ -84,4 +86,6 @@ function formatDuration(sec) {
 
 <style scoped>
 .row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+.cell-link { color: var(--text-secondary); text-decoration: none; }
+.cell-link:hover { color: var(--accent); }
 </style>

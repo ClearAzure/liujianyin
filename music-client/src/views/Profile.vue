@@ -1,5 +1,8 @@
 <template>
   <div class="page-profile">
+    <button class="role-toggle-btn" @click="toggleRole">
+      <Icon icon="mdi:swap-horizontal" /> {{ userStore.isAdmin ? '切换用户' : '切换管理员' }}
+    </button>
     <!-- 头部：大头像 + 姓名 -->
     <div class="profile-header">
       <div class="profile-avatar" @click="pickAvatar" :title="avatarUploading ? '上传中…' : '点击更换头像'">
@@ -21,6 +24,12 @@
           </button>
         </div>
         <p class="profile-username">@{{ userStore.userInfo?.username }}</p>
+        <div class="profile-signature-row">
+          <p class="profile-signature">{{ userStore.userInfo?.signature || '这个人很懒，还没有签名~' }}</p>
+          <button class="edit-name-btn" @click="editSignature" title="修改签名">
+            <Icon icon="mdi:pencil" />
+          </button>
+        </div>
       </div>
     </div>
 
@@ -118,9 +127,47 @@ async function editName() {
     ElMessage.success('姓名已更新')
   } catch { /* 取消 */ }
 }
+
+// ---- 修改签名 ----
+async function editSignature() {
+  const current = userStore.userInfo?.signature || ''
+  try {
+    const { value } = await ElMessageBox.prompt('请输入个性签名', '修改签名', {
+      confirmButtonText: '保存',
+      cancelButtonText: '取消',
+      inputValue: current,
+      inputType: 'textarea',
+      inputValidator: (v) => (v == null || v.trim().length <= 200 ? true : '签名不能超过 200 字')
+    })
+    await userStore.update({ signature: value.trim() })
+    ElMessage.success('签名已更新')
+  } catch { /* 取消 */ }
+}
+
+// ---- 切换角色（演示用） ----
+async function toggleRole() {
+  try {
+    const target = userStore.isAdmin ? '普通用户' : '管理员'
+    await userStore.toggleRole()
+    ElMessage.success(`已切换为${target}`)
+  } catch (err) {
+    ElMessage.error(err.message || '切换失败')
+  }
+}
 </script>
 
 <style scoped>
+.page-profile { position: relative; }
+.role-toggle-btn {
+  position: absolute; top: 0; right: 0;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg-card); color: var(--text-primary);
+  border: 1px solid var(--border-color); border-radius: 6px;
+  padding: 8px 16px; cursor: pointer; font-size: 14px;
+  transition: background 0.2s, border-color 0.2s;
+}
+.role-toggle-btn:hover { background: var(--bg-hover); border-color: var(--text-muted); }
+
 .profile-header {
   display: flex; align-items: center; gap: 28px;
   margin-bottom: 32px;
@@ -157,4 +204,6 @@ async function editName() {
 }
 .edit-name-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.1); }
 .profile-username { margin: 0; color: var(--text-muted); font-size: 14px; }
+.profile-signature-row { display: flex; align-items: center; gap: 10px; }
+.profile-signature { margin: 0; color: var(--text-secondary); font-size: 14px; }
 </style>

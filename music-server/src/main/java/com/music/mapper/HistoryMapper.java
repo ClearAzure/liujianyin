@@ -31,4 +31,13 @@ public interface HistoryMapper {
     @Insert("INSERT INTO play_history(user_id, music_id, play_time, duration_played) " +
             "VALUES(#{userId}, #{musicId}, NOW(), #{durationPlayed})")
     int insert(PlayHistory history);
+
+    /**
+     * 删除某歌曲的所有播放历史（删除歌曲前清理）。
+     *
+     * @param musicId 歌曲ID
+     * @return 影响行数
+     */
+    @Delete("DELETE FROM play_history WHERE music_id = #{musicId}")
+    int deleteByMusicId(Long musicId);
 }

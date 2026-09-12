@@ -20,4 +20,6 @@ public class UserVO {
     private String avatarUrl;
     @Schema(description = "个性签名")
     private String signature;
+    @Schema(description = "角色 0=普通用户 1=管理员")
+    private Integer role;
 }

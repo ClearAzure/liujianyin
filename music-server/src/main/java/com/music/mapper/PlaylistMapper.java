@@ -47,7 +47,7 @@ public interface PlaylistMapper {
      * @param playlist 歌单实体
      * @return 影响行数
      */
-    @Update("UPDATE playlist SET name = #{name}, cover_url = #{coverUrl} WHERE id = #{id}")
+    @Update("UPDATE playlist SET name = #{name}, cover_url = #{coverUrl}, description = #{description} WHERE id = #{id}")
     int update(Playlist playlist);
 
     /**
@@ -97,6 +97,15 @@ public interface PlaylistMapper {
      */
     @Delete("DELETE FROM playlist_music WHERE playlist_id = #{playlistId}")
     int deleteMusicByPlaylistId(Long playlistId);
+
+    /**
+     * 删除某歌曲在所有歌单中的关联（删除歌曲前清理）。
+     *
+     * @param musicId 歌曲ID
+     * @return 影响行数
+     */
+    @Delete("DELETE FROM playlist_music WHERE music_id = #{musicId}")
+    int deleteMusicByMusicId(Long musicId);
 
     /**
      * 判断歌曲是否已在歌单中（返回记录条数）。

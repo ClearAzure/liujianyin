@@ -1,7 +1,7 @@
 <template>
   <div class="page-history">
     <h2><Icon icon="mdi:history" /> 最近播放</h2>
-    <MusicList :songs="songs" />
+    <MusicList :songs="songs" @deleted="load" />
   </div>
 </template>
 
@@ -12,11 +12,13 @@ import * as historyAPI from '../api/history'
 
 const songs = ref([])
 
-onMounted(async () => {
+async function load() {
   try {
     songs.value = await historyAPI.list()
   } catch {
     songs.value = []
   }
-})
+}
+
+onMounted(load)
 </script>

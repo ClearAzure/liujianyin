@@ -29,7 +29,7 @@ public class PlaylistController {
     @PostMapping("/create")
     public Result<Playlist> create(@RequestBody PlaylistCreateDTO dto, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
-        Playlist playlist = playlistService.create(userId, dto.getName());
+        Playlist playlist = playlistService.create(userId, dto.getName(), dto.getCoverUrl(), dto.getDescription());
         return Result.success(playlist);
     }
     //查
@@ -48,7 +48,7 @@ public class PlaylistController {
             @RequestBody PlaylistUpdateDTO dto,
             HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
-        playlistService.update(id, userId, dto.getName(), dto.getCoverUrl());
+        playlistService.update(id, userId, dto.getName(), dto.getCoverUrl(), dto.getDescription());
         return Result.success();
     }
     //删

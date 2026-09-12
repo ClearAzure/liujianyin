@@ -43,11 +43,19 @@ public class UserController {
         return Result.success(vo);
     }
 
-    @Operation(summary = "修改用户信息", description = "修改当前用户昵称/头像。需登录（携带 Authorization: Bearer <token>）。")
+    @Operation(summary = "修改用户信息", description = "修改当前用户昵称/头像/签名。需登录（携带 Authorization: Bearer <token>）。")
     @PutMapping("/info")
     public Result<UserVO> updateInfo(@RequestBody UserUpdateDTO dto, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
-        UserVO vo = userService.updateUserInfo(userId, dto.getNickname(), dto.getAvatarUrl());
+        UserVO vo = userService.updateUserInfo(userId, dto.getNickname(), dto.getAvatarUrl(), dto.getSignature());
+        return Result.success(vo);
+    }
+
+    @Operation(summary = "切换角色", description = "在管理员/普通用户之间切换当前账号角色。演示用。需登录。")
+    @PostMapping("/toggle-role")
+    public Result<UserVO> toggleRole(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        UserVO vo = userService.toggleRole(userId);
         return Result.success(vo);
     }
 }

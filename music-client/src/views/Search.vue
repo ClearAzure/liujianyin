@@ -5,7 +5,7 @@
       <h2>搜索结果：{{ keyword }}</h2>
     </div>
 
-    <MusicList :songs="songs" />
+    <MusicList :songs="songs" @deleted="doSearch" />
   </div>
 </template>
 

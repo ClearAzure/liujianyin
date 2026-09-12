@@ -2,13 +2,18 @@ package com.music.service;
 
 import com.music.entity.Artist;
 import com.music.entity.Music;
+import com.music.exception.BusinessException;
 import com.music.mapper.AlbumMapper;
 import com.music.mapper.ArtistMapper;
+import com.music.mapper.FavoriteMapper;
+import com.music.mapper.HistoryMapper;
 import com.music.mapper.MusicMapper;
+import com.music.mapper.PlaylistMapper;
 import com.music.vo.MusicVO;
 import com.music.vo.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +25,9 @@ public class MusicService {
     private final MusicMapper musicMapper;
     private final ArtistMapper artistMapper;
     private final AlbumMapper albumMapper;
+    private final PlaylistMapper playlistMapper;
+    private final FavoriteMapper favoriteMapper;
+    private final HistoryMapper historyMapper;
 
     /**
      * 按关键字搜索在架歌曲，返回歌曲信息列表（已解析歌手/专辑名称）。
@@ -95,6 +103,25 @@ public class MusicService {
     }
 
     /**
+     * 删除歌曲及其所有关联（歌单/收藏/历史），需管理员权限。
+     *
+     * @param id 歌曲ID
+     * @throws BusinessException 歌曲不存在时抛出
+     */
+    @Transactional//事务管理
+    public void delete(Long id) {
+        Music music = musicMapper.findById(id);
+        if (music == null) {
+            throw new BusinessException("歌曲不存在");
+        }
+        // 先清引用，再删本体，避免孤儿数据
+        playlistMapper.deleteMusicByMusicId(id);
+        favoriteMapper.deleteByMusicId(id);
+        historyMapper.deleteByMusicId(id);
+        musicMapper.deleteById(id);
+    }
+
+    /**
      * 将歌曲实体转换为 VO，解析歌手/专辑名称。
      *
      * @param music 歌曲实体
@@ -117,6 +144,8 @@ public class MusicService {
         return MusicVO.builder()
                 .id(music.getId())
                 .name(music.getName())
+                .artistId(music.getArtistId())
+                .albumId(music.getAlbumId())
                 .artistName(artistName)
                 .albumName(albumName)
                 .coverUrl(music.getCoverUrl())

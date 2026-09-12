@@ -16,3 +16,8 @@ export function getUserInfo() {
 export function update(data) {
   return request.put('/user/info', data)
 }
+
+// 切换角色（管理员 ↔ 普通用户，演示用）
+export function toggleRole() {
+  return request.post('/user/toggle-role')
+}

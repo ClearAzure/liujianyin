@@ -58,4 +58,13 @@ public interface FavoriteMapper {
      */
     @Select("SELECT COUNT(*) FROM favorite WHERE user_id = #{userId} AND music_id = #{musicId}")
     int exists(@Param("userId") Long userId, @Param("musicId") Long musicId);
+
+    /**
+     * 删除某歌曲的所有收藏记录（删除歌曲前清理）。
+     *
+     * @param musicId 歌曲ID
+     * @return 影响行数
+     */
+    @Delete("DELETE FROM favorite WHERE music_id = #{musicId}")
+    int deleteByMusicId(Long musicId);
 }

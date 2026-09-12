@@ -45,8 +45,15 @@
           <div class="detail-right">
             <div class="song-info">
               <h1>{{ playerStore.currentMusic.name }}</h1>
-              <p class="artist">{{ playerStore.currentMusic.artistName }}</p>
-              <p class="album">专辑：{{ playerStore.currentMusic.albumName || '未知' }}</p>
+              <p class="artist">
+                <router-link v-if="playerStore.currentMusic.artistId" :to="`/artist/${playerStore.currentMusic.artistId}`" class="detail-link" @click="closePanel">{{ playerStore.currentMusic.artistName }}</router-link>
+                <template v-else>{{ playerStore.currentMusic.artistName }}</template>
+              </p>
+              <p class="album">
+                专辑：
+                <router-link v-if="playerStore.currentMusic.albumId" :to="`/album/${playerStore.currentMusic.albumId}`" class="detail-link" @click="closePanel">{{ playerStore.currentMusic.albumName || '未知' }}</router-link>
+                <template v-else>{{ playerStore.currentMusic.albumName || '未知' }}</template>
+              </p>
               <p class="count">播放量：{{ playerStore.currentMusic.playCount || 0 }}</p>
             </div>
             <div class="lyric-area">
@@ -138,6 +145,8 @@ async function toggleFav() {
 .song-info h1 { font-size: 34px; margin-bottom: 12px; }
 .song-info .artist { font-size: 18px; color: var(--text-secondary); margin-bottom: 6px; }
 .song-info .album, .song-info .count { font-size: 13px; color: var(--text-muted); margin-bottom: 2px; }
+.detail-link { color: inherit; text-decoration: none; }
+.detail-link:hover { color: var(--accent); text-decoration: underline; }
 .lyric-area {
   height: min(48vh, 460px);
   overflow-y: auto;

@@ -4,6 +4,12 @@
       <router-link to="/" class="nav-item" exact-active-class="active">
         <Icon icon="mdi:home" /> 推荐
       </router-link>
+      <router-link to="/artists" class="nav-item" active-class="active">
+        <Icon icon="mdi:account-music" /> 歌手
+      </router-link>
+      <router-link to="/albums" class="nav-item" active-class="active">
+        <Icon icon="mdi:album" /> 专辑
+      </router-link>
       <router-link to="/favorite" class="nav-item" active-class="active">
         <Icon icon="mdi:heart" /> 我喜欢的音乐
       </router-link>
@@ -27,7 +33,7 @@
       </div>
     </div>
 
-    <div class="nav-section">
+    <div class="nav-section" v-if="userStore.isAdmin">
       <div class="section-title">管理</div>
       <router-link to="/upload" class="nav-item" active-class="active">
         <Icon icon="mdi:upload" /> 上传歌曲
@@ -35,11 +41,22 @@
     </div>
 
     <!-- 创建歌单弹窗 -->
-    <el-dialog v-model="showCreate" title="创建歌单" width="320px" align-center>
-      <el-input v-model="newName" placeholder="歌单名称" @keyup.enter="doCreate" />
+    <el-dialog v-model="showCreate" title="创建歌单" width="360px" align-center>
+      <div class="edit-body">
+        <div class="edit-cover" @click="pickCreateCover">
+          <img v-if="newCoverPreview" :src="newCoverPreview" alt="cover" />
+          <div v-else class="edit-cover-empty">
+            <Icon icon="mdi:camera-plus" />
+            <span>上传封面（可选）</span>
+          </div>
+        </div>
+        <input ref="createFileInput" type="file" accept="image/*" hidden @change="onCreateCoverChange" />
+        <el-input v-model="newName" placeholder="歌单名称" maxlength="50" @keyup.enter="doCreate" />
+        <el-input v-model="newDescription" type="textarea" :rows="3" placeholder="简介（可选）" maxlength="200" />
+      </div>
       <template #footer>
         <el-button @click="showCreate = false">取消</el-button>
-        <el-button type="danger" @click="doCreate">确认创建</el-button>
+        <el-button type="danger" :loading="creating" @click="doCreate">确认创建</el-button>
       </template>
     </el-dialog>
 
@@ -54,6 +71,7 @@
           </div>
         </div>
         <el-input v-model="editName" placeholder="歌单名称" maxlength="50" />
+        <el-input v-model="editDescription" type="textarea" :rows="3" placeholder="简介" maxlength="200" />
         <input ref="fileInput" type="file" accept="image/*" hidden @change="onCoverChange" />
       </div>
       <template #footer>
@@ -78,6 +96,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePlaylistStore } from '../stores/playlistStore'
+import { useUserStore } from '../stores/userStore'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import * as fileAPI from '../api/file'
 
@@ -86,10 +105,17 @@ const router = useRouter()
 
 // 获取歌单列表
 const playlistStore = usePlaylistStore()
+const userStore = useUserStore()
 // 控制创建歌单弹窗显示
 const showCreate = ref(false)
 // 歌单名称
 const newName = ref('')
+// 创建歌单：封面 / 简介
+const newCoverPreview = ref('')
+const newCoverFile = ref(null)
+const newDescription = ref('')
+const createFileInput = ref(null)
+const creating = ref(false)
 
 // 右键菜单状态
 const menu = ref({ visible: false, x: 0, y: 0 })
@@ -100,6 +126,7 @@ const activePlaylist = ref(null)
 const showEdit = ref(false)
 const editId = ref(null)
 const editName = ref('')
+const editDescription = ref('')
 const editCover = ref('')
 const coverPreview = ref('')
 const coverFile = ref(null)
@@ -129,12 +156,38 @@ function coverOf(pl) {
   return songs.length ? songs[songs.length - 1].coverUrl : ''
 }
 
-// 创建歌单
+// 创建歌单（支持封面 + 简介）
 async function doCreate() {
-  if (newName.value.trim()) {
-    await playlistStore.create(newName.value.trim())
+  if (!newName.value.trim()) {
+    ElMessage.warning('歌单名称不能为空')
+    return
+  }
+  creating.value = true
+  try {
+    // 若选了封面，先上传拿到 URL，再带着一起创建
+    let coverUrl = ''
+    if (newCoverFile.value) {
+      const fd = new FormData()
+      fd.append('file', newCoverFile.value)
+      const data = await fileAPI.uploadImage(fd)
+      coverUrl = data.url
+    }
+    await playlistStore.create({
+      name: newName.value.trim(),
+      coverUrl,
+      description: newDescription.value.trim()
+    })
+    // 重置弹窗
     newName.value = ''
+    newDescription.value = ''
+    newCoverFile.value = null
+    newCoverPreview.value = ''
     showCreate.value = false
+    ElMessage.success('歌单已创建')
+  } catch (e) {
+    ElMessage.error(e.message || '创建失败')
+  } finally {
+    creating.value = false
   }
 }
 
@@ -154,6 +207,7 @@ function editPlaylist() {
   if (!pl) return
   editId.value = pl.id
   editName.value = pl.name
+  editDescription.value = pl.description || ''
   editCover.value = pl.coverUrl || ''
   coverPreview.value = pl.coverUrl || ''
   coverFile.value = null
@@ -172,6 +226,17 @@ function onCoverChange(e) {
   coverPreview.value = URL.createObjectURL(file)
 }
 
+// 创建弹窗选封面
+function pickCreateCover() {
+  createFileInput.value?.click()
+}
+function onCreateCoverChange(e) {
+  const file = e.target.files[0]
+  if (!file) return
+  newCoverFile.value = file
+  newCoverPreview.value = URL.createObjectURL(file)
+}
+
 async function saveEdit() {
   if (!editName.value.trim()) {
     ElMessage.warning('歌单名称不能为空')
@@ -187,7 +252,7 @@ async function saveEdit() {
       const data = await fileAPI.uploadImage(fd)
       coverUrl = data.url
     }
-    await playlistStore.update(editId.value, { name: editName.value.trim(), coverUrl })
+    await playlistStore.update(editId.value, { name: editName.value.trim(), coverUrl, description: editDescription.value.trim() })
     showEdit.value = false
     ElMessage.success('已保存')
   } catch (e) {

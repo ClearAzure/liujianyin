@@ -8,6 +8,10 @@ const routes = [
   { path: '/profile', name: 'Profile', component: () => import('../views/Profile.vue'), meta: { requiresAuth: true } },
   { path: '/history', name: 'History', component: () => import('../views/History.vue'), meta: { requiresAuth: true } },
   { path: '/playlist/:id', name: 'PlaylistDetail', component: () => import('../views/PlaylistDetail.vue'), meta: { requiresAuth: true } },
+  { path: '/artists', name: 'Artists', component: () => import('../views/Artists.vue') },
+  { path: '/albums', name: 'Albums', component: () => import('../views/Albums.vue') },
+  { path: '/artist/:id', name: 'ArtistDetail', component: () => import('../views/ArtistDetail.vue') },
+  { path: '/album/:id', name: 'AlbumDetail', component: () => import('../views/AlbumDetail.vue') },
   { path: '/upload', name: 'Upload', component: () => import('../views/Upload.vue'), meta: { requiresAuth: true } },
   { path: '/desktop-lyric', name: 'DesktopLyric', component: () => import('../views/DesktopLyric.vue') },
 ]

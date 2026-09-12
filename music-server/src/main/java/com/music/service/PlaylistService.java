@@ -25,12 +25,16 @@ public class PlaylistService {
      *
      * @param userId 用户ID
      * @param name 歌单名称
+     * @param coverUrl 歌单封面URL（可空）
+     * @param description 歌单简介（可空）
      * @return 创建后的歌单实体（含自增ID）
      */
-    public Playlist create(Long userId, String name) {
+    public Playlist create(Long userId, String name, String coverUrl, String description) {
         Playlist playlist = new Playlist();
         playlist.setUserId(userId);
         playlist.setName(name);
+        playlist.setCoverUrl(coverUrl);
+        playlist.setDescription(description);
         playlistMapper.insert(playlist);
         return playlist;
     }
@@ -99,15 +103,16 @@ public class PlaylistService {
     }
 
     /**
-     * 修改歌单名称/封面（需校验歌单所有权）。
+     * 修改歌单名称/封面/简介（需校验歌单所有权）。
      *
      * @param playlistId 歌单ID
      * @param userId 操作者用户ID
      * @param name 新名称（为空则不修改）
      * @param coverUrl 新封面URL（为空则不修改）
+     * @param description 新简介（为空则不修改；传空串表示清空）
      * @throws BusinessException 歌单不存在或无权操作时抛出
      */
-    public void update(Long playlistId, Long userId, String name, String coverUrl) {
+    public void update(Long playlistId, Long userId, String name, String coverUrl, String description) {
         Playlist playlist = playlistMapper.findById(playlistId);
         if (playlist == null || !playlist.getUserId().equals(userId)) {
             throw new BusinessException("歌单不存在或无权操作");
@@ -117,6 +122,9 @@ public class PlaylistService {
         }
         if (coverUrl != null) {
             playlist.setCoverUrl(coverUrl);
+        }
+        if (description != null) {
+            playlist.setDescription(description.trim());
         }
         playlistMapper.update(playlist);
     }

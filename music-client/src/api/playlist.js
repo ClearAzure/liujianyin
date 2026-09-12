@@ -1,8 +1,8 @@
 import request from '../utils/request'
 
-// 创建歌单
-export function create(name) {
-  return request.post('/playlist/create', { name })
+// 创建歌单（可带封面/简介）
+export function create(data) {
+  return request.post('/playlist/create', data)
 }
 // 获取我的歌单列表
 export function getMyPlaylists() {

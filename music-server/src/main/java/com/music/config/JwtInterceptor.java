@@ -36,6 +36,11 @@ public class JwtInterceptor implements HandlerInterceptor {//说明这个类是�
             //但是：收藏歌曲创建歌单查看自己的播放历史这些涉及用户数据的接口，就应该要求登录。
             return true;
         }
+        // 歌手/专辑查询公开（改头像/封面等写操作仍需登录）
+        if ((path.startsWith("/api/artist/") || path.startsWith("/api/album/"))
+                && ("GET".equals(method) || "OPTIONS".equals(method))) {
+            return true;
+        }
 
         //正式验证 JWT
         String authHeader = request.getHeader("Authorization");

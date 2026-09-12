@@ -11,6 +11,8 @@ export const useUserStore = defineStore('user', () => {
   const showLogin = ref(false)
 
   const isLogin = computed(() => !!token.value)
+  // 是否为管理员（0=普通用户 1=管理员）
+  const isAdmin = computed(() => userInfo.value?.role === 1)
 
   async function login(username, password) {
     const data = await userAPI.login(username, password)
@@ -49,6 +51,14 @@ export const useUserStore = defineStore('user', () => {
     return updated
   }
 
+  // 切换角色（演示用）
+  async function toggleRole() {
+    const updated = await userAPI.toggleRole()
+    userInfo.value = updated
+    localStorage.setItem('userInfo', JSON.stringify(updated))
+    return updated
+  }
+
   function logout() {
     token.value = ''
     userInfo.value = null
@@ -64,5 +74,5 @@ export const useUserStore = defineStore('user', () => {
     showLogin.value = false
   }
 
-  return { token, userInfo, isLogin, showLogin, login, register, fetchUserInfo, update, logout, openLogin, closeLogin }
+  return { token, userInfo, isLogin, isAdmin, showLogin, login, register, fetchUserInfo, update, toggleRole, logout, openLogin, closeLogin }
 })
