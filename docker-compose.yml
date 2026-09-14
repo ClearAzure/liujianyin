@@ -1,0 +1,50 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"   # ← 改成你的密码，且要和 application-prod.yml 里一致
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"   # 客户端上传/播放文件直接访问，必须开
+      - "9001:9001"   # MinIO 网页控制台，可选
+    volumes:
+      - minio-data:/data
+
+  backend:
+    build: ./music-server
+    container_name: backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy   # 等 MySQL 真正能连了再起后端
+      minio:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./music-server/jar:/app   # 挂载 jar 目录：换 jar 后 docker compose restart backend 即可
+
+volumes:
+  mysql-data:
+  minio-data:

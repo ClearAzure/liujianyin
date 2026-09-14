@@ -1,0 +1,7 @@
+# 这些都不需要进镜像，也避免把大目录传给 docker daemon
+src
+target
+jar
+.idea
+.git
+pom.xml

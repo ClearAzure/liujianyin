@@ -74,7 +74,11 @@ public class FileService {
                             .build()//构建上传文件参数
             );
 
-            return minioConfig.getEndpoint() + "/" + bucket + "/" + objectName;//自己拼接返回文件访问URL，格式为 endpoint + "/" + bucket + "/" + objectName
+            // 对外 URL 用 publicEndpoint（客户端浏览器直接访问）；没配置时退回 endpoint（本地开发）
+            String base = (minioConfig.getPublicEndpoint() != null && !minioConfig.getPublicEndpoint().isBlank())
+                    ? minioConfig.getPublicEndpoint()
+                    : minioConfig.getEndpoint();
+            return base + "/" + bucket + "/" + objectName;//自己拼接返回文件访问URL，格式为 endpoint + "/" + bucket + "/" + objectName
         } catch (Exception e) {
             throw new RuntimeException("文件上传失败: " + e.getMessage(), e);
         }

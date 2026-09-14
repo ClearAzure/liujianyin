@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "minio")//读取配置文件中 minio 开头的配置,自动绑定到这个 Java 类的字段上。
 public class MinioConfig {
     private String endpoint;//MinIO服务的URL
+    private String publicEndpoint;//对外访问地址（拼进文件 URL，客户端浏览器直接访问）
     private String accessKey;//MinIO服务的访问密钥
     private String secretKey;//MinIO服务的秘密密钥
 

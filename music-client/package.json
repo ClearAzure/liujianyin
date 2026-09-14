@@ -2,12 +2,15 @@
   "name": "music-client",
   "version": "1.0.0",
   "description": "琉涧音 - 桌面音乐客户端",
+  "author": "陈听澜",
   "main": "electron/main/main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
-    "electron:build": "vite build && electron-builder"
+    "electron:build": "vite build && electron-builder",
+    "electron:build:win": "vite build && electron-builder --win",
+    "electron:build:linux": "vite build && electron-builder --linux"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
@@ -25,5 +28,39 @@
     "electron-builder": "^24.13.3",
     "vite": "^5.4.0",
     "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.liujianyin.music",
+    "productName": "琉涧音",
+    "executableName": "liujianyin",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "src/assets/icon.png"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "src/assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Audio",
+      "icon": "src/assets/icon.png"
+    }
   }
 }

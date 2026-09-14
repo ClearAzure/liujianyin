@@ -1,0 +1,34 @@
+server:
+  port: 8080
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+  datasource:
+    # 后端和 MySQL 都在容器里，用 compose 里的服务名互访，不能用 localhost
+    url: jdbc:mysql://mysql:3306/music_db?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 1234   # ← 改成和 docker-compose.yml 里 MYSQL_ROOT_PASSWORD 一致
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.music.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+minio:
+  endpoint: http://minio:9000                # 后端容器连 MinIO 用（Docker 网络内部）
+  public-endpoint: http://192.168.100.128:9000  # 拼进文件 URL，客户端浏览器直接访问
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-music: music
+  bucket-cover: cover
+  bucket-lyric: lyric
+
+app:
+  jwt-secret: liu-jian-yin-music-app-jwt-secret-key-2026-very-long
+  jwt-expiration: 604800000

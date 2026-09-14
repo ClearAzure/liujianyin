@@ -6,13 +6,17 @@ dist/
 dist-electron/
 release/
 out/
+app/
 # Maven 构建输出 (music-server)
 target/
+# 后端 jar 挂载目录（README 保留，jar 是构建产物）
+music-server/jar/*.jar
 
 # ===== 环境变量（可能含密钥，勿提交）=====
 .env
 .env.*
 !.env.example
+!.env.production
 
 # ===== 日志 =====
 *.log

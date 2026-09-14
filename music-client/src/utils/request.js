@@ -2,7 +2,8 @@ import axios from 'axios'
 import { useUserStore } from '../stores/userStore'
 
 const request = axios.create({
-  baseURL: '/api',
+  // 开发走 Vite proxy(/api → localhost:8080)；打包(Electron/生产)后走 .env.production 里的云服务器地址
+  baseURL: import.meta.env.VITE_API_BASE || '/api',
   timeout: 30000//一个请求如果 30 秒还没有得到响应，就认为超时。
 })
 
