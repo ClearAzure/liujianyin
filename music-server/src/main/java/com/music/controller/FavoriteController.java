@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,10 +16,10 @@ import java.util.List;
 @Tag(name = "收藏模块", description = "收藏歌曲、取消收藏、收藏列表")
 @RestController
 @RequestMapping("/api/favorite")
-@RequiredArgsConstructor
 public class FavoriteController {
 
-    private final FavoriteService favoriteService;
+    @Autowired
+    private FavoriteService favoriteService;
 
     @Operation(summary = "收藏歌曲", description = "将指定歌曲加入收藏。需登录。")
     @PostMapping("/add")

@@ -7,7 +7,7 @@ import com.music.vo.MusicVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,10 +15,10 @@ import java.util.List;
 @Tag(name = "历史模块", description = "播放历史的记录与查询")
 @RestController
 @RequestMapping("/api/history")
-@RequiredArgsConstructor
 public class HistoryController {
 
-    private final HistoryService historyService;
+    @Autowired
+    private HistoryService historyService;
 
     @Operation(summary = "记录播放历史", description = "记录一次播放历史。需登录。")
     @PostMapping("/add")

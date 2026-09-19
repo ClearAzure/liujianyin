@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,10 +19,10 @@ import java.util.List;
 @Tag(name = "歌单模块", description = "歌单的创建、查询、增删歌曲、修改与删除")
 @RestController
 @RequestMapping("/api/playlist")
-@RequiredArgsConstructor
 public class PlaylistController {
 
-    private final PlaylistService playlistService;
+    @Autowired
+    private PlaylistService playlistService;
 
     //增
     @Operation(summary = "创建歌单", description = "为当前用户创建一个歌单。需登录。")

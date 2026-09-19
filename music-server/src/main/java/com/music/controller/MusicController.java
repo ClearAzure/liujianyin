@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,11 +17,12 @@ import java.util.List;
 @Tag(name = "音乐模块", description = "歌曲搜索、详情、播放、随机、热门推荐")
 @RestController
 @RequestMapping("/api/music")
-@RequiredArgsConstructor//构造器注入。而且因为只有一个构造方法，Spring 可以自动使用它，不需要再写 @Autowired。
 public class MusicController {
 
-    private final MusicService musicService;
-    private final UserService userService;
+    @Autowired
+    private MusicService musicService;
+    @Autowired
+    private UserService userService;
 
     @Operation(summary = "搜索音乐", description = "按歌名关键字模糊搜索在架歌曲，返回歌曲列表。公开接口，无需登录。")
     @GetMapping("/search")

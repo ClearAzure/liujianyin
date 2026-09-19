@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,11 +17,12 @@ import java.util.List;
 @Tag(name = "专辑模块", description = "专辑列表与详情")
 @RestController
 @RequestMapping("/api/album")
-@RequiredArgsConstructor
 public class AlbumController {
 
-    private final AlbumService albumService;
-    private final UserService userService;
+    @Autowired
+    private AlbumService albumService;
+    @Autowired
+    private UserService userService;
 
     @Operation(summary = "专辑列表", description = "返回所有专辑（含歌曲数）。公开接口，无需登录。")
     @GetMapping("/list")

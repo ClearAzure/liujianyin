@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,12 +18,16 @@ import java.util.Map;
 @Tag(name = "文件模块", description = "文件上传（音乐/封面/歌词）与一键上传歌曲")
 @RestController
 @RequestMapping("/api/file")
-@RequiredArgsConstructor
 public class FileController {
 
-    private final FileService fileService;//上传文件到MinIO,返回url
-    private final SongUploadService songUploadService;//将url及其基本信息保存到数据库
-    private final UserService userService;
+    @Autowired
+    private FileService fileService;
+
+    @Autowired
+    private SongUploadService songUploadService;
+
+    @Autowired
+    private UserService userService;
 
     @Operation(summary = "上传音乐文件", description = "上传 mp3 到 MinIO，返回 { url }。需登录。")
     @PostMapping("/upload/music")
@@ -55,18 +59,18 @@ public class FileController {
         return Result.success(result);
     }
 
-    @Operation(summary = "一键上传歌曲", description = "上传歌曲（音频+封面+歌词）并自动创建歌手/专辑、写入 music 表。返回 name、artistId、artistName、albumId、albumName、musicUrl、coverUrl、lyricUrl、musicId、success 等字段。")
+    @Operation(summary = "一键上传歌曲", description = "上传歌曲（音频 + 封面 + 歌词）并自动创建歌手/专辑、写入 music 表。返回 name、artistId、artistName、albumId、albumName、musicUrl、coverUrl、lyricUrl、musicId、success 等字段。")
     @PostMapping("/upload/song")
     public Result<?> uploadSong(
-@Parameter(description = "歌曲名")                @RequestParam("name") String name,
-@Parameter(description = "歌手名（不存在则自动创建）")@RequestParam("artistName") String artistName,
-@Parameter(description = "专辑名（可选）")         @RequestParam(value = "albumName", required = false) String albumName,
-@Parameter(description = "时长（秒，可选，默认 0）") @RequestParam(value = "duration", required = false, defaultValue = "0") Integer duration,
-@Parameter(description = "音乐文件（可选）")        @RequestParam(value = "musicFile", required = false) MultipartFile musicFile,
-@Parameter(description = "封面图片（可选）")        @RequestParam(value = "coverFile", required = false) MultipartFile coverFile,
-@Parameter(description = "歌词文件（可选）")        @RequestParam(value = "lyricFile", required = false) MultipartFile lyricFile,
-@Parameter(description = "歌手头像图片（可选）")     @RequestParam(value = "artistAvatarFile", required = false) MultipartFile artistAvatarFile,
-        HttpServletRequest request) {
+            @Parameter(description = "歌曲名") @RequestParam("name") String name,
+            @Parameter(description = "歌手名（不存在则自动创建）") @RequestParam("artistName") String artistName,
+            @Parameter(description = "专辑名（可选）") @RequestParam(value = "albumName", required = false) String albumName,
+            @Parameter(description = "时长（秒，可选，默认 0）") @RequestParam(value = "duration", required = false, defaultValue = "0") Integer duration,
+            @Parameter(description = "音乐文件（可选）") @RequestParam(value = "musicFile", required = false) MultipartFile musicFile,
+            @Parameter(description = "封面图片（可选）") @RequestParam(value = "coverFile", required = false) MultipartFile coverFile,
+            @Parameter(description = "歌词文件（可选）") @RequestParam(value = "lyricFile", required = false) MultipartFile lyricFile,
+            @Parameter(description = "歌手头像图片（可选）") @RequestParam(value = "artistAvatarFile", required = false) MultipartFile artistAvatarFile,
+            HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         userService.requireAdmin(userId);
 
