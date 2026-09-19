@@ -9,6 +9,7 @@ public class Album {
     private Long id;
     private String name;
     private String coverUrl;
+    private String description;
     private Long artistId;
     private LocalDate publishTime;
     private LocalDateTime createTime;

@@ -36,17 +36,26 @@ public class ArtistController {
         return Result.success(artistService.getDetail(id));
     }
 
-    @Operation(summary = "更新歌手头像", description = "修改歌手头像URL。仅管理员。")
+    @Operation(summary = "更新歌手", description = "修改歌手名称/头像/简介。仅管理员。")
     @PutMapping("/{id}")
-    public Result<?> updateAvatar(
+    public Result<?> update(
             @Parameter(description = "歌手ID") @PathVariable Long id,
             @RequestBody ArtistUpdateDTO dto,
             HttpServletRequest request) {
-
         Long userId = (Long) request.getAttribute("userId");
         userService.requireAdmin(userId);
+        artistService.update(id, dto.getName(), dto.getAvatarUrl(), dto.getDescription());
+        return Result.success();
+    }
 
-        artistService.updateAvatar(id, dto.getAvatarUrl());
+    @Operation(summary = "删除歌手", description = "删除歌手及其名下所有歌曲/专辑。仅管理员。")
+    @DeleteMapping("/{id}")
+    public Result<?> delete(
+            @Parameter(description = "歌手ID") @PathVariable Long id,
+            HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        userService.requireAdmin(userId);
+        artistService.delete(id);
         return Result.success();
     }
 }

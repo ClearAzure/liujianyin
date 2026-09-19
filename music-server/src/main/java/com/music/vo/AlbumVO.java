@@ -17,6 +17,8 @@ public class AlbumVO {
     private String name;
     @Schema(description = "专辑封面URL")
     private String coverUrl;
+    @Schema(description = "专辑简介")
+    private String description;
     @Schema(description = "歌手ID")
     private Long artistId;
     @Schema(description = "歌手名称")

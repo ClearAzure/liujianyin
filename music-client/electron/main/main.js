@@ -18,6 +18,9 @@ let tray = null//系统托盘
 const isDev = !app.isPackaged
 const devServerUrl = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173'
 
+// 应用图标。打包后仍在 asar 里的 src/assets/ 下（见 package.json 的 build.files）
+const appIconPath = path.join(__dirname, '..', '..', 'src', 'assets', 'icon.png')
+
 function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
@@ -30,7 +33,7 @@ function createMainWindow() {
       contextIsolation: true,
       nodeIntegration: false
     },
-    icon: path.join(__dirname, '..', '..', 'src', 'assets', 'icon.png')
+    icon: appIconPath
   })
 
   if (isDev) {
@@ -49,15 +52,21 @@ function createLyricWindow() {
     width: 800,
     height: 120,
     transparent: true,
+    backgroundColor: '#00000000', // 透明窗在 Windows 上首帧前会显示黑底，显式给全透明
     frame: false,
     alwaysOnTop: true,
     resizable: false,
     skipTaskbar: true,
+    show: false, // 先不显示，等首帧渲染好再 show，避免看到未绘制完的窗口
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false
     }
+  })
+
+  lyricWindow.once('ready-to-show', () => {
+    if (lyricWindow && !lyricWindow.isDestroyed()) lyricWindow.show()
   })
 
   const url = isDev
@@ -101,7 +110,11 @@ function setupIPC() {
 }
 
 function setupTray() {
-  const icon = nativeImage.createEmpty()
+  // 托盘图标必须是真实图片：nativeImage.createEmpty() 得到的是 0×0 空图，
+  // Windows 通知区域照样留一个槽，但里面没有任何像素 —— 看起来就是"透明的图标"。
+  // Windows 托盘按 16×16 渲染、高 DPI 下要 32×32，这里先用 Skia 缩好再交给系统，
+  // 比直接把 354×354 丢给系统缩要清晰得多。
+  const icon = nativeImage.createFromPath(appIconPath).resize({ width: 32, height: 32 })
   tray = new Tray(icon)
   const menu = Menu.buildFromTemplate([
     { label: '播放/暂停', click: () => mainWindow?.webContents.send('player:toggle') },
@@ -139,5 +152,13 @@ app.on('activate', () => {
 ipcMain.on('lyric:sync', (event, data) => {
   if (lyricWindow && !lyricWindow.isDestroyed()) {
     lyricWindow.webContents.send('lyric:update', data)
+  }
+})
+
+// 歌词窗口挂载完成后主动报到，反向通知主窗口推一次当前状态。
+// 比主窗口 setTimeout 猜加载时间可靠：早推会丢，晚推会看到空占位。
+ipcMain.on('lyric:ready', () => {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('lyric:request-sync')
   }
 })

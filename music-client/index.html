@@ -11,7 +11,19 @@
       background: #1a1a2e;
       color-scheme: dark;
     }
+    /* 桌面歌词窗口：必须在首屏绘制前就透明，否则会闪一块深色背景
+       （原来是在 DesktopLyric.vue 的 onMounted 里改 style，那时已经画过一帧了） */
+    html.lyric-window,
+    html.lyric-window body {
+      background: transparent !important;
+    }
   </style>
+  <script>
+    // 同步执行、早于 Vue 挂载：给桌面歌词窗口打标记，让首帧就是透明的
+    if (location.hash.indexOf('/desktop-lyric') !== -1) {
+      document.documentElement.classList.add('lyric-window')
+    }
+  </script>
 </head>
 
 <body>

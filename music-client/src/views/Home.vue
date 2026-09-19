@@ -9,6 +9,9 @@
     <div class="section">
       <h2>热门推荐</h2>
       <MusicList :songs="songs" @deleted="load" />
+<!--      父组件Home监听 MusicList 组件发出的 deleted 事件，一旦收到这个事件，就执行 load()  消息订阅(父组件)与通知(子组件)
+          目的是MusicList点击删除按钮的时候执行删除逻辑 , 删除后里面调用emit(deleted)通知父组件调用load(刷新操作)
+-->
     </div>
 
     <!-- 分页条：卡片区与热门列表共用同一份数据，翻页同时生效 -->
@@ -51,6 +54,7 @@ function go(p) {
 }
 
 onMounted(load)
+// 挂载后立即执行load函数
 </script>
 
 <style scoped>

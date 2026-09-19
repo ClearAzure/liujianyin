@@ -26,10 +26,10 @@ function onLyricUpdate(data) {
 }
 
 onMounted(() => {
-  // 覆盖全局深色背景，让窗口真正透明，只显示歌词文字
-  document.documentElement.style.background = 'transparent'
-  document.body.style.background = 'transparent'
+  // 先挂监听再报到，避免主窗口推回来的第一帧数据丢失
   window.electron?.onLyricUpdate?.(onLyricUpdate)
+  // 告诉主窗口「我准备好了」，让它推一次当前歌词/进度（替代原来的 setTimeout 猜测）
+  window.electron?.notifyLyricReady?.()
 })
 
 onUnmounted(() => {

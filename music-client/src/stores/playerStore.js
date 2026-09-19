@@ -199,8 +199,7 @@ export const usePlayerStore = defineStore('player', () => {
   function openLyric() {
     lyricVisible.value = true
     window.electron?.openLyric?.()
-    // 窗口加载需要一点时间，延迟推送一次当前状态，避免刚打开是空的
-    setTimeout(syncLyric, 300)
+    // 不再 setTimeout 猜加载时间：歌词窗口挂载完会通过 'lyric:ready' 反向要一次状态
   }
 
   function closeLyric() {
@@ -218,6 +217,9 @@ export const usePlayerStore = defineStore('player', () => {
   window.electron?.onLyricClosed?.(() => {
     lyricVisible.value = false
   })
+
+  // 歌词窗口挂载完成后来要数据，这时推才不会丢
+  window.electron?.onLyricRequestSync?.(() => syncLyric())
 
   // 切歌时自动加载歌词；播放进度变化时同步到桌面歌词窗口
   watch(currentMusic, loadLyric, { immediate: true })

@@ -117,4 +117,13 @@ public interface MusicMapper {
      */
     @Delete("DELETE FROM music WHERE id = #{id}")
     int deleteById(Long id);
+
+    /**
+     * 将某专辑下所有歌曲的 album_id 置空（删除专辑前调用，歌曲保留）。
+     *
+     * @param albumId 专辑ID
+     * @return 影响行数
+     */
+    @Update("UPDATE music SET album_id = NULL WHERE album_id = #{albumId}")
+    int clearAlbumIdByAlbumId(Long albumId);
 }

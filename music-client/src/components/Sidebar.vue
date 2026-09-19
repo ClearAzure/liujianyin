@@ -16,6 +16,9 @@
       <router-link to="/history" class="nav-item" active-class="active">
         <Icon icon="mdi:history" /> 最近播放
       </router-link>
+<!--      active-class：路径“包含”这个链接的路径，就激活。
+
+exact-active-class：路径必须“完全匹配”这个链接的路径，才激活。-->
     </nav>
 
     <div class="nav-section">

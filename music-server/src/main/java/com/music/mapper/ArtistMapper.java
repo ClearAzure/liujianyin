@@ -66,4 +66,22 @@ public interface ArtistMapper {
      */
     @Update("UPDATE artist SET avatar_url = #{avatarUrl} WHERE id = #{id}")
     int updateAvatar(@Param("id") Long id, @Param("avatarUrl") String avatarUrl);
+
+    /**
+     * 更新歌手（名称/头像/简介）。
+     *
+     * @param artist 歌手实体（含要更新的字段）
+     * @return 影响行数
+     */
+    @Update("UPDATE artist SET name = #{name}, avatar_url = #{avatarUrl}, description = #{description} WHERE id = #{id}")
+    int update(Artist artist);
+
+    /**
+     * 删除歌手。
+     *
+     * @param id 歌手ID
+     * @return 影响行数
+     */
+    @Delete("DELETE FROM artist WHERE id = #{id}")
+    int delete(Long id);
 }

@@ -36,15 +36,26 @@ public class AlbumController {
         return Result.success(albumService.getDetail(id));
     }
 
-    @Operation(summary = "更新专辑封面", description = "修改专辑封面URL。仅管理员。")
+    @Operation(summary = "更新专辑", description = "修改专辑名称/封面/简介。仅管理员。")
     @PutMapping("/{id}")
-    public Result<?> updateCover(
+    public Result<?> update(
             @Parameter(description = "专辑ID") @PathVariable Long id,
             @RequestBody AlbumUpdateDTO dto,
             HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         userService.requireAdmin(userId);
-        albumService.updateCover(id, dto.getCoverUrl());
+        albumService.update(id, dto.getName(), dto.getCoverUrl(), dto.getDescription());
+        return Result.success();
+    }
+
+    @Operation(summary = "删除专辑", description = "删除专辑，其下歌曲解除专辑归属（歌曲保留）。仅管理员。")
+    @DeleteMapping("/{id}")
+    public Result<?> delete(
+            @Parameter(description = "专辑ID") @PathVariable Long id,
+            HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        userService.requireAdmin(userId);
+        albumService.delete(id);
         return Result.success();
     }
 }

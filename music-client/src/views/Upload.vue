@@ -10,10 +10,10 @@
     <div class="upload-layout">
       <!-- 左侧：音频文件选择 -->
       <div class="file-picker music-picker" @click="triggerMusicInput"
-        :class="{ dragging: dragTarget === 'music' }"
-        @dragover.prevent="dragTarget = 'music'"
-        @dragleave.self="dragTarget = null"
-        @drop.prevent="onDrop('music', $event)">
+           :class="{ dragging: dragTarget === 'music' }"
+           @dragover.prevent="dragTarget = 'music'"
+           @dragleave.self="dragTarget = null"
+           @drop.prevent="onDrop('music', $event)">
         <div class="picker-icon-wrap" :class="{ ready: !!files.music }">
           <Icon :icon="files.music ? 'mdi:file-music' : 'mdi:music-note-plus'" />
         </div>
@@ -63,9 +63,9 @@
     <!-- 附加文件 -->
     <div class="extra-row">
       <div class="file-picker cover-picker" :class="{ ready: !!files.cover, dragging: dragTarget === 'cover' }" @click="triggerCoverInput"
-        @dragover.prevent="dragTarget = 'cover'"
-        @dragleave.self="dragTarget = null"
-        @drop.prevent="onDrop('cover', $event)">
+           @dragover.prevent="dragTarget = 'cover'"
+           @dragleave.self="dragTarget = null"
+           @drop.prevent="onDrop('cover', $event)">
         <div class="cover-preview" v-if="coverPreview">
           <img :src="coverPreview" alt="cover" />
           <div class="cover-overlay">
@@ -84,9 +84,9 @@
       </div>
 
       <div class="file-picker lyric-picker" :class="{ ready: !!files.lyric, dragging: dragTarget === 'lyric' }" @click="triggerLyricInput"
-        @dragover.prevent="dragTarget = 'lyric'"
-        @dragleave.self="dragTarget = null"
-        @drop.prevent="onDrop('lyric', $event)">
+           @dragover.prevent="dragTarget = 'lyric'"
+           @dragleave.self="dragTarget = null"
+           @drop.prevent="onDrop('lyric', $event)">
         <div class="picker-icon-wrap">
           <Icon :icon="files.lyric ? 'mdi:subtitles' : 'mdi:subtitles-outline'" />
         </div>
@@ -99,9 +99,9 @@
       </div>
 
       <div class="file-picker avatar-picker" :class="{ ready: !!files.avatar, dragging: dragTarget === 'avatar' }" @click="triggerAvatarInput"
-        @dragover.prevent="dragTarget = 'avatar'"
-        @dragleave.self="dragTarget = null"
-        @drop.prevent="onDrop('avatar', $event)">
+           @dragover.prevent="dragTarget = 'avatar'"
+           @dragleave.self="dragTarget = null"
+           @drop.prevent="onDrop('avatar', $event)">
         <div class="cover-preview" v-if="avatarPreview">
           <img :src="avatarPreview" alt="avatar" />
           <div class="cover-overlay"><Icon icon="mdi:refresh" /> 更换</div>
@@ -121,7 +121,7 @@
     <!-- 提交 -->
     <div class="submit-row">
       <el-button v-if="!uploading" type="danger" size="large" class="btn-submit" :disabled="!canSubmit"
-        @click="doUpload" :loading="uploading">
+                 @click="doUpload" :loading="uploading">
         <Icon icon="mdi:cloud-upload" /> 上传歌曲
       </el-button>
       <div v-else class="uploading-bar">
@@ -169,15 +169,15 @@ import * as artistAPI from '../api/artist'
 import * as albumAPI from '../api/album'
 
 const form = reactive({ name: '', artistName: '', albumName: '' })
-const artists = ref([])
-const albums = ref([])
+const artists = ref([])//歌手对象数组
+const albums = ref([])//专辑对象数组
 const files = reactive({ music: null, cover: null, lyric: null, avatar: null })
 const uploading = ref(false)
 const result = ref(null)
 const error = ref('')
-const coverPreview = ref(null)
-const avatarPreview = ref(null)
-const duration = ref(0)
+const coverPreview = ref(null)//封面预览的临时 URL(就是浏览器创建的一个本地 URL，用于显示图片预览)
+const avatarPreview = ref(null)//歌手头像预览的临时 URL
+const duration = ref(0)//秒数
 
 const musicInput = ref(null)
 const coverInput = ref(null)
@@ -194,7 +194,7 @@ onMounted(async () => {
 const canSubmit = ref(false)
 function checkCanSubmit() {
   canSubmit.value = !!(form.name.trim() || form.artistName.trim() || files.music)
-}
+}// 只要歌曲名、歌手名、音频文件有一个，就可以提交,!!意思是非空
 
 function triggerMusicInput() { musicInput.value?.click() }
 function triggerCoverInput() { coverInput.value?.click() }
@@ -203,31 +203,31 @@ function triggerAvatarInput() { avatarInput.value?.click() }
 
 // 统一的“接收一个文件”入口：点选和拖拽都走这里
 async function setFile(type, file) {
-  if (!file) return
-  files[type] = file
+  if (!file) return//没有文件就不处理
+  files[type] = file//files是一个响应式对象，存储了四种文件类型,根据传进来的type走不同的路线
   if (type === 'music') {
-    duration.value = await readDuration(file)
+    duration.value = await readDuration(file)//上传的是音频文件，就读取时长
   }
   if (type === 'cover') {
-    if (coverPreview.value) URL.revokeObjectURL(coverPreview.value)
+    if (coverPreview.value) URL.revokeObjectURL(coverPreview.value)//之前已经有预览，先释放
     coverPreview.value = URL.createObjectURL(file)
   }
   if (type === 'avatar') {
-    if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)
+    if (avatarPreview.value) URL.revokeObjectURL(avatarPreview.value)//之前已经有预览，先释放
     avatarPreview.value = URL.createObjectURL(file)
   }
   checkCanSubmit()
 }
 
-function onFileChange(type, e) {
+function onFileChange(type, e) {//文件选择框的 change 事件,一有文件就会触发
   setFile(type, e.target.files[0])
 }
 
-function onCoverChange(e) {
+function onCoverChange(e) {//封面选择框的 change 事件
   setFile('cover', e.target.files[0])
 }
 
-function onAvatarChange(e) {
+function onAvatarChange(e) {//歌手头像选择框的 change 事件
   setFile('avatar', e.target.files[0])
 }
 
@@ -248,7 +248,7 @@ function formatSize(bytes) {
 // 用浏览器原生解码器读取音频时长（秒），兼容 CBR/VBR，比后端解析更准确
 function readDuration(file) {
   return new Promise((resolve) => {
-    const url = URL.createObjectURL(file)
+    const url = URL.createObjectURL(file)//给这个本地文件创建一个临时 URL
     const audio = new Audio()
     audio.preload = 'metadata'
     audio.onloadedmetadata = () => {

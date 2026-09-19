@@ -34,8 +34,13 @@
         <input ref="fileInput" type="file" accept="image/*" hidden @change="onFileChange" />
       </div>
       <template #footer>
-        <el-button @click="editDialog = false">取消</el-button>
-        <el-button type="danger" :loading="saving" @click="save">保存</el-button>
+        <div class="dialog-footer">
+          <el-button type="danger" plain @click="confirmDelete">删除歌单</el-button>
+          <div>
+            <el-button @click="editDialog = false">取消</el-button>
+            <el-button type="danger" :loading="saving" @click="save">保存</el-button>
+          </div>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -43,13 +48,14 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { usePlaylistStore } from '../stores/playlistStore'
 import MusicList from '../components/MusicList.vue'
 import * as fileAPI from '../api/file'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const route = useRoute()
+const router = useRouter()
 const playlistStore = usePlaylistStore()
 const playlist = ref(null)
 
@@ -120,6 +126,26 @@ async function save() {
     saving.value = false
   }
 }
+
+async function confirmDelete() {
+  try {
+    await ElMessageBox.confirm('确定删除该歌单吗？删除后不可恢复。', '删除歌单', {
+      type: 'warning',
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      confirmButtonClass: 'el-button--danger'
+    })
+  } catch {
+    return
+  }
+  try {
+    await playlistStore.remove(playlist.value.id)
+    ElMessage.success('歌单已删除')
+    router.push('/profile')
+  } catch (e) {
+    ElMessage.error(e.message || '删除失败')
+  }
+}
 </script>
 
 <style scoped>
@@ -161,4 +187,7 @@ async function save() {
   color: var(--text-muted); font-size: 12px;
 }
 .edit-cover-empty .iconify { font-size: 28px; }
+
+.dialog-footer { display: flex; justify-content: space-between; align-items: center; }
+.dialog-footer > div { display: flex; gap: 8px; }
 </style>

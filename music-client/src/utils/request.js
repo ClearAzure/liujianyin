@@ -20,12 +20,12 @@ request.interceptors.request.use(config => {
 request.interceptors.response.use(
   response => {
     const data = response.data
-    if (data.code === 200) {
+    if (data.code === 200) {//只有当状态码是200的时候才可以返回数据 , 其余状态码是返回报错信息
       return data.data
     }
     return Promise.reject(new Error(data.message || '请求失败'))
   },
-  error => {
+  error => {//如果返回错误(被拦截)而且状态码是401,自动登出提示用户登录
     if (error.response?.status === 401) {
       const userStore = useUserStore()
       userStore.logout()

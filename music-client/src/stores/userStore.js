@@ -59,7 +59,7 @@ export const useUserStore = defineStore('user', () => {
     return updated
   }
 
-  function logout() {
+  function logout() {//清空一切残留,引起计算属性
     token.value = ''
     userInfo.value = null
     localStorage.removeItem('token')

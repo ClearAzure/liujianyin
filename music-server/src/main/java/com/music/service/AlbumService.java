@@ -11,6 +11,7 @@ import com.music.vo.AlbumVO;
 import com.music.vo.MusicVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +36,7 @@ public class AlbumService {
                 .id(a.getId())
                 .name(a.getName())
                 .coverUrl(resolveCover(a))
+                .description(a.getDescription())
                 .artistId(a.getArtistId())
                 .artistName(resolveArtistName(a.getArtistId()))//查询歌手名称,没有就为空字符串
                 .publishTime(a.getPublishTime())
@@ -62,6 +64,7 @@ public class AlbumService {
                 .id(album.getId())
                 .name(album.getName())
                 .coverUrl(resolveCover(album))
+                .description(album.getDescription())
                 .artistId(album.getArtistId())
                 .artistName(resolveArtistName(album.getArtistId()))
                 .publishTime(album.getPublishTime())
@@ -71,18 +74,45 @@ public class AlbumService {
     }
 
     /**
-     * 更新专辑封面。
+     * 更新专辑名称/封面/简介。
      *
      * @param id 专辑ID
-     * @param coverUrl 新封面URL
+     * @param name 新名称（为空则不修改）
+     * @param coverUrl 新封面URL（为空则不修改）
+     * @param description 新简介（为空则不修改；传空串表示清空）
      * @throws BusinessException 专辑不存在时抛出
      */
-    public void updateCover(Long id, String coverUrl) {
+    public void update(Long id, String name, String coverUrl, String description) {
         Album album = albumMapper.findById(id);
         if (album == null) {
             throw new BusinessException("专辑不存在");
         }
-        albumMapper.updateCover(id, coverUrl);
+        if (name != null && !name.isBlank()) {
+            album.setName(name.trim());
+        }
+        if (coverUrl != null) {
+            album.setCoverUrl(coverUrl);
+        }
+        if (description != null) {
+            album.setDescription(description.trim());
+        }
+        albumMapper.update(album);
+    }
+
+    /**
+     * 删除专辑：先解除其下歌曲的专辑归属（歌曲保留），再删专辑本体。
+     *
+     * @param id 专辑ID
+     * @throws BusinessException 专辑不存在时抛出
+     */
+    @Transactional//事务管理
+    public void delete(Long id) {
+        Album album = albumMapper.findById(id);
+        if (album == null) {
+            throw new BusinessException("专辑不存在");
+        }
+        musicMapper.clearAlbumIdByAlbumId(id);
+        albumMapper.delete(id);
     }
 
     private String resolveArtistName(Long artistId) {

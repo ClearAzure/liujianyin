@@ -1,5 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { useUserStore } from '../stores/userStore'
+// 桌面歌词窗口是冷启动的独立窗口，不能等懒加载 chunk：静态引入，首帧即可渲染
+import DesktopLyric from '../views/DesktopLyric.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: () => import('../views/Home.vue') },
@@ -13,7 +15,7 @@ const routes = [
   { path: '/artist/:id', name: 'ArtistDetail', component: () => import('../views/ArtistDetail.vue') },
   { path: '/album/:id', name: 'AlbumDetail', component: () => import('../views/AlbumDetail.vue') },
   { path: '/upload', name: 'Upload', component: () => import('../views/Upload.vue'), meta: { requiresAuth: true } },
-  { path: '/desktop-lyric', name: 'DesktopLyric', component: () => import('../views/DesktopLyric.vue') },
+  { path: '/desktop-lyric', name: 'DesktopLyric', component: DesktopLyric },
 ]
 
 const router = createRouter({

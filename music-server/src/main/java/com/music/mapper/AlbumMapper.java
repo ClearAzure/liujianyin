@@ -76,4 +76,22 @@ public interface AlbumMapper {
      */
     @Update("UPDATE album SET cover_url = #{coverUrl} WHERE id = #{id}")
     int updateCover(@Param("id") Long id, @Param("coverUrl") String coverUrl);
+
+    /**
+     * 更新专辑（名称/封面/简介）。
+     *
+     * @param album 专辑实体（含要更新的字段）
+     * @return 影响行数
+     */
+    @Update("UPDATE album SET name = #{name}, cover_url = #{coverUrl}, description = #{description} WHERE id = #{id}")
+    int update(Album album);
+
+    /**
+     * 删除专辑。
+     *
+     * @param id 专辑ID
+     * @return 影响行数
+     */
+    @Delete("DELETE FROM album WHERE id = #{id}")
+    int delete(Long id);
 }

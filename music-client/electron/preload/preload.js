@@ -12,6 +12,9 @@ contextBridge.exposeInMainWorld('electron', {
   selectMusicFile: () => ipcRenderer.invoke('dialog:selectMusic'),
 
   sendLyricSync: (data) => ipcRenderer.send('lyric:sync', data),
+  notifyLyricReady: () => ipcRenderer.send('lyric:ready'),
+
+  onLyricRequestSync: (callback) => ipcRenderer.on('lyric:request-sync', () => callback()),
 
   onPlayerToggle: (callback) => ipcRenderer.on('player:toggle', callback),
   onPlayerPrev: (callback) => ipcRenderer.on('player:prev', callback),

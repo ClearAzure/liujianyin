@@ -6,6 +6,10 @@ import lombok.Data;
 @Data
 @Schema(description = "更新歌手请求")
 public class ArtistUpdateDTO {
+    @Schema(description = "歌手名称")
+    private String name;
     @Schema(description = "歌手头像URL")
     private String avatarUrl;
+    @Schema(description = "歌手简介")
+    private String description;
 }

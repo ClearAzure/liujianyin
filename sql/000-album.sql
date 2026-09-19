@@ -16,3 +16,5 @@ create index idx_album_artist
 create index idx_album_name
     on album (name);
 
+ALTER TABLE album ADD COLUMN description VARCHAR(500) DEFAULT NULL COMMENT '专辑简介';
+

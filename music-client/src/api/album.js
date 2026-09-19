@@ -10,7 +10,12 @@ export function getDetail(id) {
   return request.get(`/album/${id}`)
 }
 
-// 更新专辑（封面）
+// 更新专辑（名称/封面/简介）
 export function update(id, data) {
   return request.put(`/album/${id}`, data)
+}
+
+// 删除专辑
+export function remove(id) {
+  return request.delete(`/album/${id}`)
 }

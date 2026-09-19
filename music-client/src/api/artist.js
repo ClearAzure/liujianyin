@@ -10,7 +10,12 @@ export function getDetail(id) {
   return request.get(`/artist/${id}`)
 }
 
-// 更新歌手（头像）
+// 更新歌手（名称/头像/简介）
 export function update(id, data) {
   return request.put(`/artist/${id}`, data)
+}
+
+// 删除歌手
+export function remove(id) {
+  return request.delete(`/artist/${id}`)
 }

@@ -23,6 +23,7 @@
           <td>
             <router-link v-if="music.artistId" :to="`/artist/${music.artistId}`" class="cell-link">{{ music.artistName }}</router-link>
             <template v-else>{{ music.artistName }}</template>
+<!--            其实就是显示空什么都没有-->
           </td>
           <td>
             <router-link v-if="music.albumId" :to="`/album/${music.albumId}`" class="cell-link">{{ music.albumName }}</router-link>

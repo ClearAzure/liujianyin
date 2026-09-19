@@ -95,11 +95,11 @@ public class MusicService {
 
         List<Music> list = musicMapper.findHotByPage(offset, size);//offset 和 size 是给 SQL 分页用的
 
-        List<MusicVO> vos = list.stream().map(this::toVO).collect(Collectors.toList());
+        List<MusicVO> vos = list.stream().map(this::toVO).collect(Collectors.toList());//转成vo
 
-        long total = musicMapper.countActive();
+        long total = musicMapper.countActive();//查询歌曲总量
 
-        return PageResult.of(vos, total, page, size);
+        return PageResult.of(vos, total, page, size);//返回vo 歌曲总量 当前页数(页码) 每页歌曲数量(每页大小
     }
 
     /**
